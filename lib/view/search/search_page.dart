@@ -14,6 +14,8 @@ class SearchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData mode = Theme.of(context);
+    bool isDark = mode.brightness == Brightness.dark;
     var searchCtrl = TextEditingController();
     return Scaffold(
       body: SafeArea(
@@ -49,56 +51,60 @@ class SearchPage extends StatelessWidget {
                 StickyHeader(
                     header: BlocBuilder<SearchBloc, SearchState>(
                       builder: (context, state) {
-                        return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            // mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SearchTypeWidget(
-                                        text: 'Users',
-                                        groupValue: state.type,
-                                        value: SearchType.user,
-                                      ),
-                                      SearchTypeWidget(
-                                        text: 'Issues',
-                                        groupValue: state.type,
-                                        value: SearchType.issue,
-                                      ),
-                                      SearchTypeWidget(
-                                        text: 'Repositories',
-                                        groupValue: state.type,
-                                        value: SearchType.repository,
-                                      ),
-                                    ],
+                        return Container(
+                          color: isDark? darkTheme.canvasColor : lightTheme.canvasColor,
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              // mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SearchTypeWidget(
+                                          text: 'Users',
+                                          groupValue: state.type,
+                                          value: SearchType.user,
+                                        ),
+                                        SearchTypeWidget(
+                                          text: 'Issues',
+                                          groupValue: state.type,
+                                          value: SearchType.issue,
+                                        ),
+                                        SearchTypeWidget(
+                                          text: 'Repositories',
+                                          groupValue: state.type,
+                                          value: SearchType.repository,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                // mainAxisSize: MainAxisSize.min,
-                                // mainAxisAlignment:
-                                //     MainAxisAlignment.spaceB,
-                                children: [
-                                  CustomButton(
-                                      text: 'Lazy Loading',
-                                      isPrimary: true,
-                                      onPressed: () {}),
-                                  CustomButton(
-                                      text: 'With Index',
-                                      isPrimary: false,
-                                      onPressed: () {}),
-                                ],
-                              ),
-                            ]);
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  // mainAxisSize: MainAxisSize.min,
+                                  // mainAxisAlignment:
+                                  //     MainAxisAlignment.spaceB,
+                                  children: [
+                                    CustomButton(
+                                        text: 'Lazy Loading',
+                                        isPrimary: true,
+                                        onPressed: () {}),
+                                    CustomButton(
+                                        text: 'With Index',
+                                        isPrimary: false,
+                                        onPressed: () {}),
+                                  ],
+                                ),
+                              ]),
+                        );
 
                         // return Container();
                       },
@@ -114,74 +120,90 @@ class SearchPage extends StatelessWidget {
                         IssueWidget(text: 'Open'),
                         IssueWidget(text: 'All'),
                         IssueWidget(text: 'Closed'),
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ListTile(
-                              leading: Image.network(
-                                  'https://avatars.githubusercontent.com/u/150416?v=4'),
-                              // leading: Icon(Icons.abc),
-                              title: Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: Text(
-                                  'Web based game on Doraemon theme',
-                                  style: Theme.of(context).textTheme.titleSmall,
-                                  maxLines: 2,
-                                ),
-                              ),
-                              subtitle: Text('2022-02-28'),
-                              trailing: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.remove_red_eye,
-                                        size: mQueryWidth(context, size: 0.045),
-                                        color: Colors.green,
-                                      ),
-                                      horizontalSpace(3),
-                                      Text('80')
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.star,
-                                        size: mQueryWidth(context, size: 0.045),
-                                        color: Colors.yellow,
-                                      ),
-                                      horizontalSpace(3),
-                                      Text('80K')
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.fork_right,
-                                        size: mQueryWidth(context, size: 0.045),
-                                        color: Colors.grey,
-                                      ),
-                                      horizontalSpace(3),
-                                      Text('111k')
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
+                        RepositoryWidget(),
+                        UserWidget(),
+                        IssueWidget(text: 'Open'),
+                        IssueWidget(text: 'All'),
+                        IssueWidget(text: 'Closed'),
+                        RepositoryWidget(),
                       ],
                     ))
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class RepositoryWidget extends StatelessWidget {
+  const RepositoryWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListTile(
+          leading: Image.network(
+              'https://avatars.githubusercontent.com/u/150416?v=4'),
+          // leading: Icon(Icons.abc),
+          title: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(
+              'Web based game on Doraemon theme',
+              style: Theme.of(context).textTheme.titleSmall,
+              maxLines: 2,
+            ),
+          ),
+          subtitle: Text('2022-02-28'),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.remove_red_eye,
+                    size: mQueryWidth(context, size: 0.045),
+                    color: Colors.green,
+                  ),
+                  horizontalSpace(3),
+                  Text('80')
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.star,
+                    size: mQueryWidth(context, size: 0.045),
+                    color: Colors.yellow,
+                  ),
+                  horizontalSpace(3),
+                  Text('80K')
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.fork_right,
+                    size: mQueryWidth(context, size: 0.045),
+                    color: Colors.grey,
+                  ),
+                  horizontalSpace(3),
+                  Text('111k')
+                ],
+              ),
+            ],
           ),
         ),
       ),
