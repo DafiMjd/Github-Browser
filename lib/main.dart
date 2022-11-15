@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_browser/style/theme_constant.dart';
 import 'package:github_browser/style/theme_manager.dart';
-import 'package:github_browser/utils/global_function.dart';
 import 'package:github_browser/view/home/bloc/home_bloc.dart';
 import 'package:github_browser/view/home/home_page.dart';
 import 'package:github_browser/view/search/bloc/search_bloc.dart';
 import 'package:github_browser/view/search/search_page.dart';
-import 'package:github_browser/widget/search_box.dart';
 
 void main() {
   runApp(MultiBlocProvider(
@@ -15,7 +13,7 @@ void main() {
       BlocProvider<HomeBloc>(create: (context) => HomeBloc()),
       BlocProvider<SearchBloc>(create: (context) => SearchBloc()),
     ],
-    child: MyApp(),
+    child: const MyApp(),
   ));
 }
 
@@ -31,7 +29,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
-    // TODO: implement dispose
     _themeManager.removeListener(themeListener);
     super.dispose();
   }

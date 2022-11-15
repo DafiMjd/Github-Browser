@@ -16,11 +16,11 @@ class SearchBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Card(
         elevation: 5,
         child: ListTile(
-            leading: Icon(Icons.search),
+            leading: const Icon(Icons.search),
             title: TextFormField(
               controller: ctrl,
               onFieldSubmitted: submit,

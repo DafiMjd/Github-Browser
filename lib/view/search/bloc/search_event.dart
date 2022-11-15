@@ -24,3 +24,12 @@ class SearchChooseType extends SearchEvent {
   @override
   List<Object> get props => [type];
 }
+
+class SearchChangePagingOption extends SearchEvent {
+  final bool isLazyLoading;
+
+  const SearchChangePagingOption(this.isLazyLoading);
+
+  @override
+  List<Object> get props => [isLazyLoading];
+}

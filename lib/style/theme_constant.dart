@@ -20,7 +20,7 @@ ThemeData lightTheme = ThemeData(
 
 ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
-  primarySwatch: Colors.cyan,
+  // primarySwatch: Colors.cyan,
   textTheme: const TextTheme(
     button: TextStyle(color: Colors.white, fontFamily: 'Montserrat'),
     headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold, fontFamily: 'Montserrat'),

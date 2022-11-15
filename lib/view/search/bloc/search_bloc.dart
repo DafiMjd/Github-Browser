@@ -6,13 +6,18 @@ part 'search_event.dart';
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  SearchBloc() : super(SearchInitial(true,SearchType.repository)) {
+  SearchBloc() : super(SearchInitial(true,SearchType.repository,true)) {
     on<SearchTypeSearchBox>((event, emit) {
-      emit(SearchTypingSearchBox(event.isSearchFieldEmpty, state.type));
+      emit(SearchTypingSearchBox(event.isSearchFieldEmpty, state.type, state.isLazyLoading));
     });
 
     on<SearchChooseType>((event, emit) {
-      emit(SearchTypeChosen(state.isSearchFieldEmpty, event.type));
+      emit(SearchTypeChosen(state.isSearchFieldEmpty, event.type, state.isLazyLoading));
+
+    });
+
+    on<SearchChangePagingOption>((event, emit) {
+      emit(SearchPagingOptionChanged(state.isSearchFieldEmpty, state.type, event.isLazyLoading));
 
     });
   }

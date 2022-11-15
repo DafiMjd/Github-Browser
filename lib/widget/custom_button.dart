@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:github_browser/style/custom_style.dart';
 import 'package:github_browser/style/theme_constant.dart';
+import 'package:github_browser/style/theme_manager.dart';
 import 'package:github_browser/utils/global_function.dart';
 
 class CustomButton extends StatelessWidget {
@@ -16,12 +17,12 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData mode = Theme.of(context);
-    bool isDark = mode.brightness == Brightness.dark;
+    ThemeManager _themeManager = ThemeManager();
+    bool isDark = _themeManager.themeMode == ThemeMode.dark;
 
     return ElevatedButton(
       onPressed: onPressed,
-      child: Container(
+      child: SizedBox(
           width: mQueryWidth(context, size: 0.3),
           child: Center(
               child: Text(

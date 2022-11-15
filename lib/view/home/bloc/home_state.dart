@@ -12,7 +12,7 @@ class HomeInitial extends HomeState {}
 class HomeTypingSearchBox extends HomeState {
   final bool isEmpty;
 
-  HomeTypingSearchBox(this.isEmpty);
+  const HomeTypingSearchBox(this.isEmpty);
   
   @override
   List<Object> get props => [isEmpty];

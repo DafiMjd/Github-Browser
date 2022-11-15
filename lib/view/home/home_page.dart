@@ -1,9 +1,10 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_browser/style/theme_manager.dart';
 import 'package:github_browser/utils/global_function.dart';
 import 'package:github_browser/view/home/bloc/home_bloc.dart';
-import 'package:github_browser/widget/custom_app_bar.dart';
 import 'package:github_browser/widget/search_box.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,7 +19,6 @@ class _HomePageState extends State<HomePage> {
   late String mode;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     mode = widget.themeManager.themeMode == ThemeMode.dark ? 'dark' : 'light';
   }
@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
         child: Center(
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.only(bottom: 50),
+              padding: const EdgeInsets.only(bottom: 50),
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
                       trailing: BlocBuilder<HomeBloc, HomeState>(
                         builder: (context, state) {
                           if (state is HomeInitial)
-                            return Visibility(
+                            return const Visibility(
                                 visible: false, child: Icon(Icons.cancel));
                           else {
                             HomeTypingSearchBox homeTyping =
@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                             return Visibility(
                                 visible: !state.isEmpty,
                                 child: IconButton(
-                                  icon: Icon(Icons.cancel),
+                                  icon: const Icon(Icons.cancel),
                                   onPressed: () {
                                     searchCtrl.text = '';
                                   },

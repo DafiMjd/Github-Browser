@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:github_browser/style/theme_constant.dart';
 
 class CustomStyle {

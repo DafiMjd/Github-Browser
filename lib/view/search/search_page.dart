@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_browser/data/search_type.dart';
-import 'package:github_browser/style/custom_style.dart';
 import 'package:github_browser/style/theme_constant.dart';
 import 'package:github_browser/utils/global_function.dart';
 import 'package:github_browser/view/search/bloc/search_bloc.dart';
 import 'package:github_browser/widget/custom_button.dart';
+import 'package:github_browser/widget/page_index_widget.dart';
 import 'package:github_browser/widget/search_box.dart';
+import 'package:number_pagination/number_pagination.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 
 class SearchPage extends StatelessWidget {
@@ -21,7 +22,7 @@ class SearchPage extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             child: Column(
               children: [
                 SearchBox(
@@ -38,7 +39,7 @@ class SearchPage extends StatelessWidget {
                       return Visibility(
                           visible: !state.isSearchFieldEmpty,
                           child: IconButton(
-                            icon: Icon(Icons.cancel),
+                            icon: const Icon(Icons.cancel),
                             onPressed: () {
                               searchCtrl.text = '';
                             },
@@ -52,7 +53,9 @@ class SearchPage extends StatelessWidget {
                     header: BlocBuilder<SearchBloc, SearchState>(
                       builder: (context, state) {
                         return Container(
-                          color: isDark? darkTheme.canvasColor : lightTheme.canvasColor,
+                          color: isDark
+                              ? darkTheme.canvasColor
+                              : lightTheme.canvasColor,
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               // mainAxisAlignment: MainAxisAlignment.start,
@@ -86,22 +89,38 @@ class SearchPage extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  // mainAxisSize: MainAxisSize.min,
-                                  // mainAxisAlignment:
-                                  //     MainAxisAlignment.spaceB,
-                                  children: [
-                                    CustomButton(
-                                        text: 'Lazy Loading',
-                                        isPrimary: true,
-                                        onPressed: () {}),
-                                    CustomButton(
-                                        text: 'With Index',
-                                        isPrimary: false,
-                                        onPressed: () {}),
-                                  ],
+                                BlocBuilder<SearchBloc, SearchState>(
+                                  builder: (context, state) {
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      // mainAxisSize: MainAxisSize.min,
+                                      // mainAxisAlignment:
+                                      //     MainAxisAlignment.spaceB,
+                                      children: [
+                                        CustomButton(
+                                            text: 'Lazy Loading',
+                                            isPrimary: state.isLazyLoading,
+                                            onPressed: () {
+                                              if (!state.isLazyLoading) {
+                                                context.read<SearchBloc>().add(
+                                                    const SearchChangePagingOption(
+                                                        true));
+                                              }
+                                            }),
+                                        CustomButton(
+                                            text: 'With Index',
+                                            isPrimary: !state.isLazyLoading,
+                                            onPressed: () {
+                                              if (state.isLazyLoading) {
+                                                context.read<SearchBloc>().add(
+                                                    const SearchChangePagingOption(
+                                                        false));
+                                              }
+                                            }),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ]),
                         );
@@ -114,24 +133,35 @@ class SearchPage extends StatelessWidget {
 
                         ListView(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       children: [
                         UserWidget(),
-                        IssueWidget(text: 'Open'),
-                        IssueWidget(text: 'All'),
-                        IssueWidget(text: 'Closed'),
+                        IssueWidget(
+                          issueState: IssueState.open,
+                          imageUrl:
+                              'https://avatars.githubusercontent.com/u/150416?v=4',
+                        ),
+                        IssueWidget(
+                            issueState: IssueState.closed,
+                            imageUrl:
+                                'https://avatars.githubusercontent.com/u/150416?v=4'),
+                        IssueWidget(
+                            issueState: IssueState.all,
+                            imageUrl:
+                                'https://avatars.githubusercontent.com/u/150416?v=4'),
                         RepositoryWidget(),
-                        UserWidget(),
-                        IssueWidget(text: 'Open'),
-                        IssueWidget(text: 'All'),
-                        IssueWidget(text: 'Closed'),
-                        RepositoryWidget(),
+                        // PageIndexWidget(),
                       ],
                     ))
               ],
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: PageIndexWidget(
+        start: 1,
+        end: 50,
+        current: 48,
       ),
     );
   }
@@ -200,7 +230,7 @@ class RepositoryWidget extends StatelessWidget {
                     color: Colors.grey,
                   ),
                   horizontalSpace(3),
-                  Text('111k')
+                  Text('999K')
                 ],
               ),
             ],
@@ -211,18 +241,50 @@ class RepositoryWidget extends StatelessWidget {
   }
 }
 
+enum IssueState { open, closed, all }
+
 class IssueWidget extends StatelessWidget {
-  final String text;
-  const IssueWidget({Key? key, required this.text}) : super(key: key);
+  final IssueState issueState;
+  final String imageUrl;
+  const IssueWidget(
+      {Key? key, required this.issueState, required this.imageUrl})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    late Color color;
+    late String issueString;
+
+    getState(IssueState issue) {
+      switch (issue) {
+        case IssueState.open:
+          {
+            color = Colors.green;
+            issueString = 'Open';
+            break;
+          }
+        case IssueState.all:
+          {
+            color = Colors.grey;
+            issueString = 'All';
+            break;
+          }
+        case IssueState.closed:
+          {
+            color = Colors.red;
+            issueString = 'Closed';
+            break;
+          }
+      }
+    }
+
+    getState(issueState);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-          leading: Image.network(
-              'https://avatars.githubusercontent.com/u/150416?v=4'),
+          leading: Image.network(imageUrl),
           // leading: Icon(Icons.abc),
           title: Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
@@ -240,12 +302,11 @@ class IssueWidget extends StatelessWidget {
               Container(
                 width: mQueryWidth(context, size: 0.03),
                 height: mQueryWidth(context, size: 0.03),
-                decoration:
-                    BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
               verticalSpace(5),
               Text(
-                text,
+                issueString,
                 textAlign: TextAlign.start,
               )
             ],
@@ -300,10 +361,10 @@ class SearchTypeWidget extends StatelessWidget {
     return Row(
       children: [
         Radio<SearchType>(
-          // fillColor: MaterialStateProperty.resolveWith((states) {
-          //   // If the button is pressed, return size 40, otherwise 20
-          //   return RADIO_COLOR_DARK;
-          // }),
+          fillColor: MaterialStateProperty.resolveWith((states) {
+            // If the button is pressed, return size 40, otherwise 20
+            return RADIO_COLOR_DARK;
+          }),
           value: value,
           groupValue: groupValue,
           onChanged: (SearchType? value) {
