@@ -5,7 +5,7 @@ import 'package:github_browser/style/theme_constant.dart';
 import 'package:github_browser/utils/global_function.dart';
 import 'package:github_browser/view/search/bloc/search_bloc.dart';
 import 'package:github_browser/widget/custom_button.dart';
-import 'package:github_browser/widget/page_index_widget.dart';
+import 'package:github_browser/view/search/page_index_widget.dart';
 import 'package:github_browser/widget/search_box.dart';
 import 'package:number_pagination/number_pagination.dart';
 import 'package:sticky_headers/sticky_headers.dart';
@@ -124,13 +124,11 @@ class SearchPage extends StatelessWidget {
                                 ),
                               ]),
                         );
-
                         // return Container();
                       },
                     ),
                     content:
                         // Container())
-
                         ListView(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -158,10 +156,12 @@ class SearchPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: PageIndexWidget(
-        start: 1,
-        end: 50,
-        current: 48,
+      bottomNavigationBar: SafeArea(
+        child: PageIndexWidget(
+          start: 1,
+          end: 50,
+          current: 41,
+        ),
       ),
     );
   }
@@ -200,7 +200,7 @@ class RepositoryWidget extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.remove_red_eye,
-                    size: mQueryWidth(context, size: 0.045),
+                    size: mQueryWidth(context, size: 0.04),
                     color: Colors.green,
                   ),
                   horizontalSpace(3),
@@ -213,7 +213,7 @@ class RepositoryWidget extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.star,
-                    size: mQueryWidth(context, size: 0.045),
+                    size: mQueryWidth(context, size: 0.04),
                     color: Colors.yellow,
                   ),
                   horizontalSpace(3),
@@ -226,7 +226,7 @@ class RepositoryWidget extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.fork_right,
-                    size: mQueryWidth(context, size: 0.045),
+                    size: mQueryWidth(context, size: 0.04),
                     color: Colors.grey,
                   ),
                   horizontalSpace(3),

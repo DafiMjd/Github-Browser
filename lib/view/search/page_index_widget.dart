@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_browser/style/theme_constant.dart';
 import 'package:github_browser/style/theme_manager.dart';
 import 'package:github_browser/utils/global_function.dart';
+import 'package:github_browser/view/search/bloc/search_bloc.dart';
 
 class PageIndexWidget extends StatelessWidget {
   final int start, end, current;
-  const PageIndexWidget(
-      {Key? key, required this.start, required this.end, required this.current})
-      : super(key: key);
+  // final VoidCallback nextPage, prevPage, goToPage;
+  const PageIndexWidget({
+    Key? key,
+    required this.start,
+    required this.end,
+    required this.current,
+    // required this.nextPage, required this.prevPage, required this.goToPage
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +40,30 @@ class PageIndexWidget extends StatelessWidget {
             //           .headlineSmall,
             //     )),
 
-            for (int i = 1; i <= listPage.length; i++)
-              if (listPage[i - 1] != -1)
+            for (int i = 0; i < listPage.length; i++)
+              if (listPage[i] != -1)
                 IndexWidget(
-                  number: listPage[i - 1].toString(),
-                  isSelected: listPage[i - 1] == current,
+                  number: listPage[i].toString(),
+                  isSelected: listPage[i] == current,
                   onTap: (() {}),
                 )
               else
-                IndexSkipWidget(),
+                const IndexSkipWidget(),
+                
+            // BlocBuilder<SearchBloc, SearchState>(builder: (context, state) {
+            //   for (int i = 0; i < listPage.length; i++) {
+            //     if (listPage[i] != -1) {
+            //       return IndexWidget(
+            //         number: listPage[i].toString(),
+            //         isSelected: listPage[i] == current,
+            //         onTap: (() {}),
+            //       );
+            //     } else {
+            //       return const IndexSkipWidget();
+            //     }
+            //   }
+            //   return Container();
+            // }),
 
             const Icon(
               Icons.arrow_forward_ios,
@@ -97,7 +119,7 @@ class IndexSkipWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Text(
-        '..',
+        '...',
         style:
             Theme.of(context).textTheme.headlineSmall!.copyWith(fontSize: 18),
       ),

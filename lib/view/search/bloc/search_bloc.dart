@@ -6,7 +6,7 @@ part 'search_event.dart';
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  SearchBloc() : super(SearchInitial(true,SearchType.repository,true)) {
+  SearchBloc() : super(SearchInitial(true,SearchType.user,true)) {
     on<SearchTypeSearchBox>((event, emit) {
       emit(SearchTypingSearchBox(event.isSearchFieldEmpty, state.type, state.isLazyLoading));
     });
