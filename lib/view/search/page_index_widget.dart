@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_browser/style/theme_constant.dart';
-import 'package:github_browser/style/theme_manager.dart';
 import 'package:github_browser/utils/global_function.dart';
-import 'package:github_browser/view/search/bloc/search_bloc.dart';
 
 class PageIndexWidget extends StatelessWidget {
   final int start, end, current;
@@ -18,58 +15,59 @@ class PageIndexWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int pageCount = (end > 7) ? 7 : end;
     List<int> listPage = getPagination(current, end);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Icon(
-              Icons.arrow_back_ios,
-              size: 20,
-            ),
-            // TextButton(
-            //     onPressed: () {},
-            //     child: Text(
-            //       '1',
-            //       style: Theme.of(context)
-            //           .textTheme
-            //           .headlineSmall,
-            //     )),
-
-            for (int i = 0; i < listPage.length; i++)
-              if (listPage[i] != -1)
-                IndexWidget(
-                  number: listPage[i].toString(),
-                  isSelected: listPage[i] == current,
-                  onTap: (() {}),
-                )
-              else
-                const IndexSkipWidget(),
-                
-            // BlocBuilder<SearchBloc, SearchState>(builder: (context, state) {
-            //   for (int i = 0; i < listPage.length; i++) {
-            //     if (listPage[i] != -1) {
-            //       return IndexWidget(
-            //         number: listPage[i].toString(),
-            //         isSelected: listPage[i] == current,
-            //         onTap: (() {}),
-            //       );
-            //     } else {
-            //       return const IndexSkipWidget();
-            //     }
-            //   }
-            //   return Container();
-            // }),
-
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 20,
-            ),
-          ],
+    return SafeArea(
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(
+                Icons.arrow_back_ios,
+                size: 20,
+              ),
+              // TextButton(
+              //     onPressed: () {},
+              //     child: Text(
+              //       '1',
+              //       style: Theme.of(context)
+              //           .textTheme
+              //           .headlineSmall,
+              //     )),
+    
+              for (int i = 0; i < listPage.length; i++)
+                if (listPage[i] != -1)
+                  IndexWidget(
+                    number: listPage[i].toString(),
+                    isSelected: listPage[i] == current,
+                    onTap: (() {}),
+                  )
+                else
+                  const IndexSkipWidget(),
+    
+              // BlocBuilder<SearchBloc, SearchState>(builder: (context, state) {
+              //   for (int i = 0; i < listPage.length; i++) {
+              //     if (listPage[i] != -1) {
+              //       return IndexWidget(
+              //         number: listPage[i].toString(),
+              //         isSelected: listPage[i] == current,
+              //         onTap: (() {}),
+              //       );
+              //     } else {
+              //       return const IndexSkipWidget();
+              //     }
+              //   }
+              //   return Container();
+              // }),
+    
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -105,7 +103,7 @@ class IndexWidget extends StatelessWidget {
         decoration: BoxDecoration(
             color: (isSelected) ? RADIO_COLOR_LIGHT : Colors.transparent,
             border: Border.all(color: RADIO_COLOR_LIGHT, width: 2),
-            borderRadius: BorderRadius.all(Radius.circular(8))),
+            borderRadius: const BorderRadius.all(Radius.circular(8))),
       ),
     );
   }

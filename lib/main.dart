@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:github_browser/data/repo/github_repository.dart';
 import 'package:github_browser/style/theme_constant.dart';
 import 'package:github_browser/style/theme_manager.dart';
 import 'package:github_browser/view/home/bloc/home_bloc.dart';
@@ -11,7 +12,7 @@ void main() {
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider<HomeBloc>(create: (context) => HomeBloc()),
-      BlocProvider<SearchBloc>(create: (context) => SearchBloc()),
+      BlocProvider<SearchBloc>(create: (context) => SearchBloc(GithubRepository())),
     ],
     child: const MyApp(),
   ));
@@ -52,12 +53,7 @@ class _MyAppState extends State<MyApp> {
       darkTheme: darkTheme,
       themeMode: _themeManager.themeMode,
       debugShowCheckedModeBanner: false,
-      // home: HomePage(),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => HomePage(themeManager: _themeManager,),
-        '/search': (context) => SearchPage()
-      },
+      home: HomePage(themeManager: _themeManager,),
     );
   }
 }

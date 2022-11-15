@@ -5,12 +5,14 @@ class SearchBox extends StatelessWidget {
   final Function(String) onChanged;
   final Widget trailing;
   final TextEditingController ctrl;
+  final bool enabled;
   const SearchBox(
       {Key? key,
       required this.submit,
       required this.onChanged,
       required this.trailing,
-      required this.ctrl})
+      required this.ctrl,
+      required this.enabled})
       : super(key: key);
 
   @override
@@ -22,6 +24,7 @@ class SearchBox extends StatelessWidget {
         child: ListTile(
             leading: const Icon(Icons.search),
             title: TextFormField(
+              enabled: enabled,
               controller: ctrl,
               onFieldSubmitted: submit,
               onChanged: onChanged,

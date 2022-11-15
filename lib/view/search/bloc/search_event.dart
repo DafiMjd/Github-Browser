@@ -33,3 +33,11 @@ class SearchChangePagingOption extends SearchEvent {
   @override
   List<Object> get props => [isLazyLoading];
 }
+
+class SearchFetchItems extends SearchEvent {
+  final String keyword;
+
+  const SearchFetchItems(this.keyword);
+}
+
+class SearchCancelFuture extends SearchEvent {}

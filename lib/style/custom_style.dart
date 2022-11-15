@@ -10,6 +10,6 @@ class CustomStyle {
         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
-                side: BorderSide(color: PRIMARY_COLOR, width: 2))));
+                side: const BorderSide(color: PRIMARY_COLOR, width: 2))));
   }
 }

@@ -23,17 +23,13 @@ Widget horizontalSpace(double width) {
 }
 
 List<int> getPagination(current, max) {
-  int curr = current,
-      last = max,
-      delta = 1,
-      left = current - delta,
-      right = current + delta + 1;
+  int delta = 1, left = current - delta, right = current + delta + 1;
   List range = [];
   List<int> rangeWithDots = <int>[];
   int? l;
 
-  for (int i = 1; i <= last; i++) {
-    if (i == 1 || i == last || i >= left && i < right) {
+  for (int i = 1; i <= max; i++) {
+    if (i == 1 || i == max || i >= left && i < right) {
       range.add(i);
     }
   }

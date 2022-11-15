@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_browser/style/theme_manager.dart';
 import 'package:github_browser/utils/global_function.dart';
 import 'package:github_browser/view/home/bloc/home_bloc.dart';
+import 'package:github_browser/view/search/search_page.dart';
 import 'package:github_browser/widget/search_box.dart';
 
 class HomePage extends StatefulWidget {
@@ -56,7 +57,13 @@ class _HomePageState extends State<HomePage> {
                     SearchBox(
                       submit: (value) {
                         if (value.isNotEmpty)
-                          Navigator.pushNamed(context, '/search');
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SearchPage(
+                                  keyword: searchCtrl.text,
+                                ),
+                              ));
                       },
                       onChanged: (value) {
                         context
@@ -83,6 +90,7 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                       ctrl: searchCtrl,
+                      enabled: true,
                     ),
                   ]),
             ),
@@ -91,7 +99,13 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/search');
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SearchPage(
+                  keyword: 'doraemon',
+                ),
+              ));
         },
       ),
     );

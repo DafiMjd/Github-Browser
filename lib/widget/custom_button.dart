@@ -7,12 +7,14 @@ class CustomButton extends StatelessWidget {
   final String text;
   final bool isPrimary;
   final VoidCallback onPressed;
-  const CustomButton({
-    Key? key,
-    required this.text,
-    required this.isPrimary,
-    required this.onPressed,
-  }) : super(key: key);
+  final bool enabled;
+  const CustomButton(
+      {Key? key,
+      required this.text,
+      required this.isPrimary,
+      required this.onPressed,
+      required this.enabled})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,7 @@ class CustomButton extends StatelessWidget {
     bool isDark = mode.brightness == Brightness.dark;
 
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: enabled ? onPressed : () {},
       child: SizedBox(
           width: mQueryWidth(context, size: 0.3),
           child: Center(
