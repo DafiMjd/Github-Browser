@@ -81,39 +81,17 @@ class _SearchPageState extends State<SearchPage> {
                 children: [
                   BlocBuilder<SearchBloc, SearchState>(
                     builder: (context, state) {
-                      late bool enabled;
-                      if (state is SearchLoading) {
-                        enabled = false;
-                      } else {
-                        enabled = true;
-                      }
-
-                      return SearchBox(
-                        submit: (value) {
-                          if (value.isNotEmpty) {
-                            context
-                                .read<SearchBloc>()
-                                .add(SearchFetchItems(searchCtrl.text));
-                          }
-                        },
-                        onChanged: (value) {
-                          widget.keyword = value;
-                          context
-                              .read<SearchBloc>()
-                              .add(SearchTypeSearchBox(value.isEmpty));
-                        },
-                        trailing: Visibility(
-                            visible: !state.isSearchFieldEmpty,
-                            child: IconButton(
-                              icon: const Icon(Icons.cancel),
-                              onPressed: () {
-                                searchCtrl.text = '';
-                                widget.keyword = '';
-                              },
-                            )),
-                        ctrl: searchCtrl,
-                        enabled: enabled,
-                      );
+                      return Visibility(
+                          visible: !state.isSearchFieldEmpty,
+                          child: IconButton(
+                            icon: const Icon(Icons.cancel),
+                            onPressed: () {
+                              searchCtrl.text = '';
+                              context
+                                  .read<SearchBloc>()
+                                  .add(SearchTypeSearchBox(true));
+                            },
+                          ));
                     },
                   ),
                   verticalSpace(10),
@@ -173,17 +151,10 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
         ),
-        bottomNavigationBar: BlocBuilder<SearchBloc, SearchState>(
-          builder: (context, state) {
-            return Visibility(
-              visible: !state.isLazyLoading,
-              child: PageIndexWidget(
-                start: 1,
-                end: 50,
-                current: 41,
-              ),
-            );
-          },
+        bottomNavigationBar: const PageIndexWidget(
+          start: 1,
+          end: 50,
+          current: 41,
         ),
       ),
     );
@@ -466,10 +437,6 @@ class SearchTypeWidget extends StatelessWidget {
     return Row(
       children: [
         Radio<SearchType>(
-          fillColor: MaterialStateProperty.resolveWith((states) {
-            // If the button is pressed, return size 40, otherwise 20
-            return RADIO_COLOR_DARK;
-          }),
           value: value,
           groupValue: groupValue,
           onChanged: enabled

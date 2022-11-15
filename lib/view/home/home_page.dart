@@ -84,6 +84,9 @@ class _HomePageState extends State<HomePage> {
                                   icon: const Icon(Icons.cancel),
                                   onPressed: () {
                                     searchCtrl.text = '';
+                                    context
+                                        .read<HomeBloc>()
+                                        .add(HomeTypeSearchBox(true));
                                   },
                                 ));
                           }

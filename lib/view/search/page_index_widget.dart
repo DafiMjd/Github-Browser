@@ -46,7 +46,7 @@ class PageIndexWidget extends StatelessWidget {
                   )
                 else
                   const IndexSkipWidget(),
-    
+                  
               // BlocBuilder<SearchBloc, SearchState>(builder: (context, state) {
               //   for (int i = 0; i < listPage.length; i++) {
               //     if (listPage[i] != -1) {
@@ -98,7 +98,7 @@ class IndexWidget extends StatelessWidget {
         child: Text(
           number,
           style:
-              Theme.of(context).textTheme.headlineSmall!.copyWith(fontSize: 18),
+              Theme.of(context).textTheme.headlineSmall!.copyWith(fontSize: 18, color: (isSelected) ? Colors.white : Theme.of(context).textTheme.headlineSmall!.color),
         ),
         decoration: BoxDecoration(
             color: (isSelected) ? RADIO_COLOR_LIGHT : Colors.transparent,
