@@ -16,18 +16,26 @@ class GithubRepository {
     try {
       var response = await _githubProvider.fetchGithub(type, keyword, page);
 
+      if (response['limit'] == '0') throw 'limit-excedeed';
+
       if (response == null) throw 'error';
 
       late IndexNavigation indexNav;
 
       if (response['link'] == null) {
-        indexNav = IndexNavigation('', '', '', '');
+        indexNav = IndexNavigation('', '', '', '', '');
       } else {
-        indexNav = getIndexNav(response['link']!);
+        indexNav = getIndexNav(response['link']!, page);
       }
 
-      var data = jsonDecode(response['body']!);
-      var json = data['items'] as List<dynamic>;
+      var data = jsonDecode(response['body'] ?? '');
+
+      late var json;
+      if (data.isEmpty || data['items'] == null) {
+        json = [];
+      } else {
+        json = data['items'] as List<dynamic>;
+      }
 
       switch (type) {
         case 'repositories':
@@ -36,15 +44,13 @@ class GithubRepository {
           return parseUsers(indexNav, json);
         case 'issues':
           return parseIssues(indexNav, json);
-
-        default:
       }
     } catch (e) {
       rethrow;
     }
   }
 
-  IndexNavigation getIndexNav(String headerLinkString) {
+  IndexNavigation getIndexNav(String headerLinkString, String page) {
     // split header links by rel
     List<String> headerLinks = headerLinkString.split(
       ', ',
@@ -85,11 +91,14 @@ class GithubRepository {
       }
     }
 
-    IndexNavigation nav = IndexNavigation(prev, next, last, first);
+    if (last.isEmpty) last = page;
+
+    IndexNavigation nav = IndexNavigation(prev, next, last, first, page);
     return nav;
   }
 
   Repository parseRepos(IndexNavigation nav, List<dynamic> json) {
+    if (json.isEmpty) return Repository(nav: nav, repositories: []);
     List<RepositoryResponse> repos = json
         .map<RepositoryResponse>((json) => RepositoryResponse.fromJson(json))
         .toList();
@@ -97,12 +106,14 @@ class GithubRepository {
   }
 
   User parseUsers(IndexNavigation nav, List<dynamic> json) {
+    if (json.isEmpty) return User(nav: nav, users: []);
     List<UserResponse> users =
         json.map<UserResponse>((json) => UserResponse.fromJson(json)).toList();
     return User(nav: nav, users: users);
   }
 
   Issue parseIssues(IndexNavigation nav, List<dynamic> json) {
+    if (json.isEmpty) return Issue(nav: nav, issues: []);
     List<IssueResponse> issues = json
         .map<IssueResponse>((json) => IssueResponse.fromJson(json))
         .toList();

@@ -2,6 +2,7 @@ import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:github_browser/data/model/issue_response.dart';
 import 'package:github_browser/data/model/repository_response.dart';
 import 'package:github_browser/data/model/user.dart';
@@ -78,21 +79,49 @@ class _SearchPageState extends State<SearchPage> {
                 children: [
                   BlocBuilder<SearchBloc, SearchState>(
                     builder: (context, state) {
-                      return Visibility(
-                          visible: !state.isSearchFieldEmpty,
-                          child: IconButton(
-                            icon: const Icon(Icons.cancel),
-                            onPressed: () {
-                              searchCtrl.text = '';
-                              context
-                                  .read<SearchBloc>()
-                                  .add(SearchTypeSearchBox(true));
-                            },
-                          ));
+                      late bool enabled;
+                      if (state is SearchLoading) {
+                        enabled = false;
+                      } else {
+                        enabled = true;
+                      }
+
+                      return SearchBox(
+                        submit: (value) {
+                          if (value.isNotEmpty) {
+                            context
+                                .read<SearchBloc>()
+                                .add(SearchFetchItems(searchCtrl.text));
+                          }
+                        },
+                        onChanged: (value) {
+                          widget.keyword = value;
+                          context
+                              .read<SearchBloc>()
+                              .add(SearchTypeSearchBox(value.isEmpty));
+                        },
+                        trailing: Visibility(
+                            visible: !state.isSearchFieldEmpty,
+                            child: IconButton(
+                              icon: const Icon(Icons.cancel),
+                              onPressed: () {
+                                searchCtrl.text = '';
+                                widget.keyword = '';
+                              },
+                            )),
+                        ctrl: searchCtrl,
+                        enabled: enabled,
+                      );
                     },
                   ),
                   verticalSpace(10),
-                  BlocBuilder<SearchBloc, SearchState>(
+                  BlocConsumer<SearchBloc, SearchState>(
+                    listener: (context, state) {
+                      if (state is SearchFetchFailed) {
+                        // _showDialog(context, state.error);
+                        Fluttertoast.showToast(msg: state.error);
+                      }
+                    },
                     builder: (context, state) {
                       late bool enabled;
                       if (state is SearchLoading) {
@@ -129,7 +158,7 @@ class _SearchPageState extends State<SearchPage> {
                                   state is SearchInitial)
                               ? _loadingIndicator()
                               : (isItemsEmpty)
-                                  ? Text('No Data')
+                                  ? _noData()
                                   : ListView.builder(
                                       itemCount: state.hasReachedMax ||
                                               !state.isLazyLoading
@@ -148,10 +177,28 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
         ),
-        bottomNavigationBar: const PageIndexWidget(
-          start: 1,
-          end: 50,
-          current: 41,
+        bottomNavigationBar: BlocBuilder<SearchBloc, SearchState>(
+          builder: (context, state) {
+            late bool enabled;
+            if (state is SearchLoading) {
+              enabled = false;
+            } else {
+              enabled = true;
+            }
+            return Visibility(
+              visible: !state.isLazyLoading,
+              child: PageIndexWidget(
+                start: state.nav.first.isEmpty ? 0 : int.parse(state.nav.first),
+                end: state.nav.last.isEmpty ? 0 : int.parse(state.nav.last),
+                current: state.nav.current.isEmpty
+                    ? 0
+                    : int.parse(state.nav.current),
+                prev: state.nav.prev.isEmpty ? 0 : int.parse(state.nav.prev),
+                next: state.nav.next.isEmpty ? 0 : int.parse(state.nav.next),
+                enabled: enabled,
+              ),
+            );
+          },
         ),
       ),
     );
@@ -196,6 +243,14 @@ class _SearchPageState extends State<SearchPage> {
     return const Padding(
         padding: EdgeInsets.all(8),
         child: Center(child: CircularProgressIndicator()));
+  }
+
+  Widget _noData() {
+    return Padding(
+        padding: const EdgeInsets.all(8),
+        child: Center(
+            child:
+                Text('No Data', style: Theme.of(context).textTheme.titleMedium)));
   }
 
   Container _typeWidget(SearchState state, bool enabled) {

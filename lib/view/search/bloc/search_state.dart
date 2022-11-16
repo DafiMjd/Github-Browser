@@ -8,8 +8,16 @@ abstract class SearchState extends Equatable {
   final List<dynamic> pagingItems;
   final bool hasReachedMax;
   final String keyword;
-  const SearchState(this.isSearchFieldEmpty, this.type, this.isLazyLoading,
-      this.lazyItems, this.pagingItems, this.hasReachedMax, this.keyword);
+  final IndexNavigation nav;
+  const SearchState(
+      this.isSearchFieldEmpty,
+      this.type,
+      this.isLazyLoading,
+      this.lazyItems,
+      this.pagingItems,
+      this.hasReachedMax,
+      this.keyword,
+      this.nav);
 
   @override
   List<Object> get props => [
@@ -19,13 +27,21 @@ abstract class SearchState extends Equatable {
         lazyItems,
         pagingItems,
         hasReachedMax,
-        keyword
+        keyword,
+        nav
       ];
 }
 
 class SearchInitial extends SearchState {
-  const SearchInitial(super.isSearchFieldEmpty, super.type, super.isLazyLoading,
-      super.lazyItems, super.pagingItems, super.hasReachedMax, super.keyword);
+  const SearchInitial(
+      super.isSearchFieldEmpty,
+      super.type,
+      super.isLazyLoading,
+      super.lazyItems,
+      super.pagingItems,
+      super.hasReachedMax,
+      super.keyword,
+      super.nav);
 
   @override
   List<Object> get props => [
@@ -35,7 +51,8 @@ class SearchInitial extends SearchState {
         lazyItems,
         pagingItems,
         hasReachedMax,
-        keyword
+        keyword,
+        nav
       ];
 }
 
@@ -46,7 +63,9 @@ class SearchTypingSearchBox extends SearchState {
       super.isLazyLoading,
       super.lazyItems,
       super.pagingItems,
-      super.hasReachedMax, super.keyword);
+      super.hasReachedMax,
+      super.keyword,
+      super.nav);
 
   @override
   List<Object> get props => [
@@ -56,7 +75,8 @@ class SearchTypingSearchBox extends SearchState {
         lazyItems,
         pagingItems,
         hasReachedMax,
-        keyword
+        keyword,
+        nav
       ];
 }
 
@@ -67,7 +87,9 @@ class SearchTypeChosen extends SearchState {
       super.isLazyLoading,
       super.lazyItems,
       super.pagingItems,
-      super.hasReachedMax, super.keyword);
+      super.hasReachedMax,
+      super.keyword,
+      super.nav);
 
   @override
   List<Object> get props => [
@@ -77,7 +99,8 @@ class SearchTypeChosen extends SearchState {
         lazyItems,
         pagingItems,
         hasReachedMax,
-        keyword
+        keyword,
+        nav
       ];
 }
 
@@ -88,7 +111,9 @@ class SearchPagingOptionChanged extends SearchState {
       super.isLazyLoading,
       super.lazyItems,
       super.pagingItems,
-      super.hasReachedMax, super.keyword);
+      super.hasReachedMax,
+      super.keyword,
+      super.nav);
 
   @override
   List<Object> get props => [
@@ -98,7 +123,8 @@ class SearchPagingOptionChanged extends SearchState {
         lazyItems,
         pagingItems,
         hasReachedMax,
-        keyword
+        keyword,
+        nav
       ];
 }
 
@@ -109,7 +135,9 @@ class SearchLoading extends SearchState {
     super.isLazyLoading,
     super.lazyItems,
     super.pagingItems,
-    super.hasReachedMax, super.keyword,
+    super.hasReachedMax,
+    super.keyword,
+    super.nav,
   );
 
   @override
@@ -120,13 +148,21 @@ class SearchLoading extends SearchState {
         lazyItems,
         pagingItems,
         hasReachedMax,
-        keyword
+        keyword,
+        nav
       ];
 }
 
 class SearchLoaded extends SearchState {
-  const SearchLoaded(super.isSearchFieldEmpty, super.type, super.isLazyLoading,
-      super.lazyItems, super.pagingItems, super.hasReachedMax, super.keyword);
+  const SearchLoaded(
+      super.isSearchFieldEmpty,
+      super.type,
+      super.isLazyLoading,
+      super.lazyItems,
+      super.pagingItems,
+      super.hasReachedMax,
+      super.keyword,
+      super.nav);
 
   @override
   List<Object> get props => [
@@ -136,11 +172,34 @@ class SearchLoaded extends SearchState {
         lazyItems,
         pagingItems,
         hasReachedMax,
-        keyword
+        keyword,
+        nav
       ];
+}
 
-  // SearchLoaded copywith({List<dynamic>? items, bool? hasReachedMax}) {
-  //   return SearchLoaded(isSearchFieldEmpty, type, isLazyLoading,
-  //       items ?? this.lazyItems, hasReachedMax ?? this.hasReachedMax);
-  // }
+class SearchFetchFailed extends SearchState {
+  final String error;
+  const SearchFetchFailed(
+      super.isSearchFieldEmpty,
+      super.type,
+      super.isLazyLoading,
+      super.lazyItems,
+      super.pagingItems,
+      super.hasReachedMax,
+      super.keyword,
+      super.nav,
+      this.error);
+
+  @override
+  List<Object> get props => [
+        isSearchFieldEmpty,
+        type,
+        isLazyLoading,
+        lazyItems,
+        pagingItems,
+        hasReachedMax,
+        keyword,
+        nav,
+        error
+      ];
 }

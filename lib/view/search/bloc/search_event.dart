@@ -41,3 +41,17 @@ class SearchFetchItems extends SearchEvent {
 }
 
 class SearchCancelFuture extends SearchEvent {}
+
+class SearchGoToPage extends SearchEvent {
+  final int page;
+
+  const SearchGoToPage(this.page);
+}
+
+
+class SearchFetchFail extends SearchEvent {
+  final String error;
+
+
+  const SearchFetchFail(this.error);
+}

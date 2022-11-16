@@ -2,6 +2,7 @@ import 'package:async/async.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:github_browser/data/model/index_navigation.dart';
 import 'package:github_browser/data/model/issue.dart';
 import 'package:github_browser/data/model/issue_response.dart';
 import 'package:github_browser/data/model/repository.dart';
@@ -34,19 +35,21 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   SearchBloc(this._postRepo)
-      : super(const SearchInitial(
-            true, SearchType.user, true, [], [], false, '')) {
+      : super(SearchInitial(true, SearchType.user, true, [], [], false, '',
+            IndexNavigation('', '', '', '', ''))) {
     CancelableOperation? _myCancelableFuture;
     int page = 1;
     on<SearchTypeSearchBox>((event, emit) {
       emit(SearchTypingSearchBox(
-          event.isSearchFieldEmpty,
-          state.type,
-          state.isLazyLoading,
-          state.lazyItems,
-          state.pagingItems,
-          state.hasReachedMax,
-          state.keyword));
+        event.isSearchFieldEmpty,
+        state.type,
+        state.isLazyLoading,
+        state.lazyItems,
+        state.pagingItems,
+        state.hasReachedMax,
+        state.keyword,
+        state.nav,
+      ));
     });
 
     on<SearchChooseType>((event, emit) {
@@ -57,7 +60,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           state.lazyItems,
           state.pagingItems,
           state.hasReachedMax,
-          state.keyword));
+          state.keyword,
+          state.nav));
     });
 
     on<SearchChangePagingOption>((event, emit) {
@@ -68,7 +72,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           state.lazyItems,
           state.pagingItems,
           state.hasReachedMax,
-          state.keyword));
+          state.keyword,
+          state.nav));
     });
 
     List<dynamic> _getItems(item) {
@@ -83,10 +88,17 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
 
     Future<dynamic> _getData(String keyword) async {
-      var result = await _postRepo.fetchGithub(
-          _getType(state.type), keyword, page.toString());
+      try {
+        var result = await _postRepo.fetchGithub(
+            _getType(state.type), keyword, page.toString());
 
-      return result;
+        return result;
+      } catch (e) {
+        if (e == 'limit-excedeed') {
+          add(SearchFetchFail('API LIMIT CALL HAS BEEN EXCEEDED'));
+        }
+        // rethrow;
+      }
     }
 
     Future<void> _cancelFuture() async {
@@ -96,9 +108,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     on<SearchFetchItems>((event, emit) async {
       try {
-        _myCancelableFuture =
-            CancelableOperation.fromFuture(_getData(event.keyword));
-        var item = await _myCancelableFuture?.value;
+        // _myCancelableFuture =
+        //     CancelableOperation.fromFuture(_getData(event.keyword));
+        var item = await _getData(event.keyword).onError((error, stackTrace) {
+          return;
+        });
 
         List items = _getItems(item);
 
@@ -110,7 +124,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               state.lazyItems,
               state.pagingItems,
               false,
-              event.keyword));
+              event.keyword,
+              state.nav));
           emit(SearchLoaded(
               state.isSearchFieldEmpty,
               state.type,
@@ -118,7 +133,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               items,
               items,
               item.nav.next.isEmpty,
-              state.keyword));
+              state.keyword,
+              item.nav));
         } else {
           late List lazyItems;
           late String keyword;
@@ -137,7 +153,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               state.lazyItems,
               state.pagingItems,
               false,
-              keyword));
+              keyword,
+              item.nav));
 
           emit(SearchLoaded(
               state.isSearchFieldEmpty,
@@ -146,7 +163,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               lazyItems,
               items,
               item.nav.next.isEmpty,
-              state.keyword));
+              state.keyword,
+              item.nav));
           print('fdsa');
         }
 
@@ -154,6 +172,33 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       } catch (e) {
         rethrow;
       }
+    });
+
+    on<SearchGoToPage>((event, emit) {
+      page = event.page;
+      emit(SearchLoading(
+          state.isSearchFieldEmpty,
+          state.type,
+          state.isLazyLoading,
+          state.lazyItems,
+          state.pagingItems,
+          false,
+          state.keyword,
+          state.nav));
+      add(SearchFetchItems(state.keyword));
+    });
+
+    on<SearchFetchFail>((event, emit) {
+      emit(SearchFetchFailed(
+          state.isSearchFieldEmpty,
+          state.type,
+          state.isLazyLoading,
+          state.lazyItems,
+          state.pagingItems,
+          state.hasReachedMax,
+          state.keyword,
+          state.nav,
+          event.error));
     });
 
     // on<SearchCancelFuture>((event, emit) async {
