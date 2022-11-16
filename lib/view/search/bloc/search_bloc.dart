@@ -17,22 +17,6 @@ part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final GithubRepository _postRepo;
-  final bool initSearchFieldValue = true,
-      initIsLazyLoading = true,
-      initHasReachedMax = false;
-  final List initList = [];
-  final SearchType initSearchType = SearchType.user;
-
-  String _getType(SearchType type) {
-    switch (type) {
-      case SearchType.user:
-        return 'users';
-      case SearchType.issue:
-        return 'issues';
-      case SearchType.repository:
-        return 'repositories';
-    }
-  }
 
   SearchBloc(this._postRepo)
       : super(SearchInitial(true, SearchType.user, true, [], [], false, '',
@@ -53,15 +37,18 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     });
 
     on<SearchChooseType>((event, emit) {
+      page = 1;
       emit(SearchTypeChosen(
           state.isSearchFieldEmpty,
           event.type,
           state.isLazyLoading,
-          state.lazyItems,
-          state.pagingItems,
+          [],
+          [],
           state.hasReachedMax,
           state.keyword,
           state.nav));
+
+      add(SearchFetchItems(state.keyword));
     });
 
     on<SearchChangePagingOption>((event, emit) {
@@ -87,15 +74,29 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       }
     }
 
-    Future<dynamic> _getData(String keyword, {searchPage = 1}) async {
+    String _getType(SearchType type) {
+      switch (type) {
+        case SearchType.user:
+          return 'users';
+        case SearchType.issue:
+          return 'issues';
+        case SearchType.repository:
+          return 'repositories';
+      }
+    }
+
+    Future<dynamic> _getData(String keyword, SearchType type,
+        {searchPage = 1}) async {
       try {
         var result = await _postRepo.fetchGithub(
-            _getType(state.type), keyword, page.toString());
+            _getType(type), keyword, page.toString());
 
         return result;
       } catch (e) {
         if (e == 'limit-excedeed') {
-          add(SearchFetchFail('API LIMIT CALL HAS BEEN EXCEEDED'));
+          add(SearchFetchFail('API limit call has been exceeded'));
+        } else if (e == 'offline') {
+          add(SearchFetchFail('You are offline, check your connection'));
         }
         // rethrow;
       }
@@ -108,9 +109,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     on<SearchFetchItems>((event, emit) async {
       try {
-        // _myCancelableFuture =
-        //     CancelableOperation.fromFuture(_getData(event.keyword));
-
         if (state is SearchInitial) {
           emit(SearchLoading(
               state.isSearchFieldEmpty,
@@ -121,7 +119,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               false,
               event.keyword,
               state.nav));
-          var item = await _getData(event.keyword).onError((error, stackTrace) {
+          var item = await _getData(event.keyword, state.type)
+              .onError((error, stackTrace) {
             return;
           });
 
@@ -142,8 +141,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
             isSameKeyword = false;
           }
 
-          var item = await _getData(event.keyword).onError((error, stackTrace) {
-            return;
+          var item = await _getData(event.keyword, state.type)
+              .onError((error, stackTrace) {
+            // return;
           });
           List items = _getItems(item);
           late List lazyItems;
@@ -177,7 +177,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               item.nav.next.isEmpty,
               keyword,
               item.nav));
-          print('fdsa');
         }
 
         page++;

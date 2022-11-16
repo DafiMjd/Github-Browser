@@ -6,13 +6,15 @@ class SearchBox extends StatelessWidget {
   final Widget trailing;
   final TextEditingController ctrl;
   final bool enabled;
+  final FocusNode focusNode;
   const SearchBox(
       {Key? key,
       required this.submit,
       required this.onChanged,
       required this.trailing,
       required this.ctrl,
-      required this.enabled})
+      required this.enabled,
+      required this.focusNode})
       : super(key: key);
 
   @override
@@ -24,12 +26,16 @@ class SearchBox extends StatelessWidget {
         child: ListTile(
             leading: const Icon(Icons.search),
             title: TextFormField(
+              focusNode: focusNode,
               enabled: enabled,
               controller: ctrl,
               onFieldSubmitted: submit,
               onChanged: onChanged,
               decoration: const InputDecoration.collapsed(
-                  hintText: 'Search repos/users/issues'),
+                  hintText: 'Search repos/users/issues',
+                  focusColor: Colors.red,
+                  fillColor: Colors.red,
+                  hoverColor: Colors.red),
             ),
             trailing: trailing),
       ),

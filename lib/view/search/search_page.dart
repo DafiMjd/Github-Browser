@@ -14,6 +14,7 @@ import 'package:github_browser/view/search/bloc/search_bloc.dart';
 import 'package:github_browser/widget/custom_button.dart';
 import 'package:github_browser/view/search/page_index_widget.dart';
 import 'package:github_browser/widget/search_box.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 
 class SearchPage extends StatefulWidget {
@@ -30,7 +31,7 @@ class _SearchPageState extends State<SearchPage> {
   bool hasReachedMax = false;
   bool isLazyLoading = true;
   late String keyword;
-
+  late FocusNode myFocusNode; // activate textfield
 
   void setupScrollController(context) {
     scrollController.addListener(() {
@@ -54,8 +55,10 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     keyword = widget.firstKeyword;
     setupScrollController(context);
-    BlocProvider.of<SearchBloc>(context).add(SearchFetchItems(widget.firstKeyword));
+    BlocProvider.of<SearchBloc>(context)
+        .add(SearchFetchItems(widget.firstKeyword));
     searchCtrl = TextEditingController(text: widget.firstKeyword);
+    myFocusNode = FocusNode();
 
     super.initState();
   }
@@ -63,6 +66,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void dispose() {
     scrollController.removeListener(() {});
+    myFocusNode.dispose();
     super.dispose();
   }
 
@@ -90,32 +94,41 @@ class _SearchPageState extends State<SearchPage> {
                         enabled = true;
                       }
 
-                      return SearchBox(
-                        submit: (value) {
-                          keyword = value;
-                          if (value.isNotEmpty) {
-                            context
-                                .read<SearchBloc>()
-                                .add(SearchFetchItems(searchCtrl.text));
-                          }
-                        },
-                        onChanged: (value) {
-                          keyword = value;
-                          context
-                              .read<SearchBloc>()
-                              .add(SearchTypeSearchBox(value.isEmpty));
-                        },
-                        trailing: Visibility(
-                            visible: !state.isSearchFieldEmpty,
-                            child: IconButton(
-                              icon: const Icon(Icons.cancel),
-                              onPressed: () {
-                                searchCtrl.text = '';
-                                keyword = '';
-                              },
-                            )),
-                        ctrl: searchCtrl,
-                        enabled: enabled,
+                      return InkWell(
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        onTap: () => myFocusNode.requestFocus(),
+                        child: SearchBox(
+                            submit: (value) {
+                              keyword = value;
+                              if (value.isNotEmpty) {
+                                context
+                                    .read<SearchBloc>()
+                                    .add(SearchFetchItems(searchCtrl.text));
+                              }
+                            },
+                            onChanged: (value) {
+                              keyword = value;
+                              context
+                                  .read<SearchBloc>()
+                                  .add(SearchTypeSearchBox(value.isEmpty));
+                            },
+                            trailing: Visibility(
+                                visible: !state.isSearchFieldEmpty,
+                                child: IconButton(
+                                  icon: const Icon(Icons.cancel),
+                                  onPressed: () {
+                                    searchCtrl.text = '';
+                                    keyword = '';
+                                    context
+                                        .read<SearchBloc>()
+                                        .add(SearchTypeSearchBox(true));
+                                  },
+                                )),
+                            ctrl: searchCtrl,
+                            enabled: enabled,
+                            focusNode: myFocusNode),
                       );
                     },
                   ),
@@ -159,22 +172,25 @@ class _SearchPageState extends State<SearchPage> {
                                   _paginType(state, context, enabled)
                                 ]),
                           ),
-                          content: (state is SearchLoading ||
-                                  state is SearchInitial)
-                              ? _loadingIndicator()
-                              : (isItemsEmpty)
-                                  ? _noData()
-                                  : ListView.builder(
-                                      itemCount: state.hasReachedMax ||
-                                              !state.isLazyLoading
-                                          ? items.length
-                                          : items.length + 1,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) => (index <
-                                              items.length)
-                                          ? _getItem(state.type, items[index])
-                                          : _loadingIndicator()));
+                          content: 
+                          // _loadingIndicator());
+                      (state is SearchLoading ||
+                              state is SearchInitial ||
+                              state is SearchTypeChosen)
+                          ? _loadingIndicator()
+                          : (isItemsEmpty)
+                              ? _noData()
+                              : ListView.builder(
+                                  itemCount: state.hasReachedMax ||
+                                          !state.isLazyLoading
+                                      ? items.length
+                                      : items.length + 1,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index) => (index <
+                                          items.length)
+                                      ? _getItem(state.type, items[index])
+                                      : _loadingIndicator()));
                     },
                   )
                 ],
@@ -191,7 +207,9 @@ class _SearchPageState extends State<SearchPage> {
               enabled = true;
             }
             return Visibility(
-              visible: !state.isLazyLoading,
+              visible: !state.isLazyLoading &&
+                  state.lazyItems.isNotEmpty &&
+                  state.pagingItems.isNotEmpty,
               child: PageIndexWidget(
                 start: state.nav.first.isEmpty ? 0 : int.parse(state.nav.first),
                 end: state.nav.last.isEmpty ? 0 : int.parse(state.nav.last),
@@ -245,9 +263,41 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _loadingIndicator() {
-    return const Padding(
-        padding: EdgeInsets.all(8),
-        child: Center(child: CircularProgressIndicator()));
+    // return const Padding(
+    //     padding: EdgeInsets.all(8),
+    //     child: Center(child: CircularProgressIndicator()));
+
+    // Padding(padding: EdgeInsets.all(8), child: Shimmer(),)
+
+    return Shimmer.fromColors(
+      baseColor: Color.fromARGB(255, 211, 208, 208),
+      highlightColor: Colors.white,
+      // enabled: _enabled,
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemBuilder: (_, __) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            leading: Container(
+              width: 60,
+              height: 60,
+              color: Colors.white,
+            ),
+            title: Container(
+              width: double.maxFinite,
+              height: 10,
+              color: Colors.white,
+            ),
+            subtitle: Container(
+              width: double.maxFinite,
+              height: 10,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        itemCount: 15,
+      ),
+    );
   }
 
   Widget _noData() {
@@ -422,12 +472,12 @@ class IssueWidget extends StatelessWidget {
           title: Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: Text(
-              'Web based game on Doraemon theme',
+              issue.title,
               style: Theme.of(context).textTheme.titleSmall,
               maxLines: 2,
             ),
           ),
-          subtitle: Text('2022-02-28'),
+          subtitle: Text(issue.updatedAt),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,

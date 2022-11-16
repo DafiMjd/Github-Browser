@@ -42,6 +42,7 @@ dependencies:
   sticky_headers: ^0.3.0+2
   number_pagination: ^0.0.3+2
   fluttertoast: ^8.1.1
+  shimmer: ^2.0.0
   
   async: ^2.9.0
 

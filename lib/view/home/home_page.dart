@@ -18,10 +18,18 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late String mode;
+  late FocusNode myFocusNode; // activate textfield
   @override
   void initState() {
-    super.initState();
     mode = widget.themeManager.themeMode == ThemeMode.dark ? 'dark' : 'light';
+    myFocusNode = FocusNode();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    myFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -52,51 +60,61 @@ class _HomePageState extends State<HomePage> {
                       height: mQueryWidth(context, size: 0.3),
                     ),
                     verticalSpace(20),
-                     Text(
+                    Text(
                       'Github Browser',
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(fontStyle: FontStyle.normal),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge!
+                          .copyWith(fontStyle: FontStyle.normal),
                     ),
                     verticalSpace(30),
-                    SearchBox(
-                      submit: (value) {
-                        if (value.isNotEmpty)
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SearchPage(
-                                  firstKeyword: searchCtrl.text,
-                                ),
-                              ));
-                      },
-                      onChanged: (value) {
-                        context
-                            .read<HomeBloc>()
-                            .add(HomeTypeSearchBox(value.isEmpty));
-                      },
-                      trailing: BlocBuilder<HomeBloc, HomeState>(
-                        builder: (context, state) {
-                          if (state is HomeInitial)
-                            return const Visibility(
-                                visible: false, child: Icon(Icons.cancel));
-                          else {
-                            HomeTypingSearchBox homeTyping =
-                                state as HomeTypingSearchBox;
-                            return Visibility(
-                                visible: !state.isEmpty,
-                                child: IconButton(
-                                  icon: const Icon(Icons.cancel),
-                                  onPressed: () {
-                                    searchCtrl.text = '';
-                                    context
-                                        .read<HomeBloc>()
-                                        .add(HomeTypeSearchBox(true));
-                                  },
+                    InkWell(
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      onTap: () => myFocusNode.requestFocus(),
+                      child: SearchBox(
+                        submit: (value) {
+                          if (value.isNotEmpty)
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SearchPage(
+                                    firstKeyword: searchCtrl.text,
+                                  ),
                                 ));
-                          }
                         },
+                        onChanged: (value) {
+                          context
+                              .read<HomeBloc>()
+                              .add(HomeTypeSearchBox(value.isEmpty));
+                        },
+                        trailing: BlocBuilder<HomeBloc, HomeState>(
+                          builder: (context, state) {
+                            if (state is HomeInitial)
+                              return const Visibility(
+                                  visible: false, child: Icon(Icons.cancel));
+                            else {
+                              HomeTypingSearchBox homeTyping =
+                                  state as HomeTypingSearchBox;
+                              return Visibility(
+                                  visible: !state.isEmpty,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.cancel),
+                                    onPressed: () {
+                                      searchCtrl.text = '';
+                                      context
+                                          .read<HomeBloc>()
+                                          .add(HomeTypeSearchBox(true));
+                                    },
+                                  ));
+                            }
+                          },
+                        ),
+                        ctrl: searchCtrl,
+                        enabled: true,
+                        focusNode: myFocusNode,
                       ),
-                      ctrl: searchCtrl,
-                      enabled: true,
                     ),
                   ]),
             ),
