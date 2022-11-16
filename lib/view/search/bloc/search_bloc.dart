@@ -87,7 +87,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       }
     }
 
-    Future<dynamic> _getData(String keyword) async {
+    Future<dynamic> _getData(String keyword, {searchPage = 1}) async {
       try {
         var result = await _postRepo.fetchGithub(
             _getType(state.type), keyword, page.toString());
@@ -110,11 +110,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       try {
         // _myCancelableFuture =
         //     CancelableOperation.fromFuture(_getData(event.keyword));
-        var item = await _getData(event.keyword).onError((error, stackTrace) {
-          return;
-        });
-
-        List items = _getItems(item);
 
         if (state is SearchInitial) {
           emit(SearchLoading(
@@ -126,6 +121,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               false,
               event.keyword,
               state.nav));
+          var item = await _getData(event.keyword).onError((error, stackTrace) {
+            return;
+          });
+
+          List items = _getItems(item);
           emit(SearchLoaded(
               state.isSearchFieldEmpty,
               state.type,
@@ -136,16 +136,28 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               state.keyword,
               item.nav));
         } else {
+          bool isSameKeyword = true;
+          if (event.keyword != state.keyword) {
+            page = 1;
+            isSameKeyword = false;
+          }
+
+          var item = await _getData(event.keyword).onError((error, stackTrace) {
+            return;
+          });
+          List items = _getItems(item);
           late List lazyItems;
           late String keyword;
 
-          if (event.keyword != state.keyword) {
+          if (!isSameKeyword) {
+            page = 1;
             lazyItems = items;
             keyword = event.keyword;
           } else {
             lazyItems = state.lazyItems + items;
             keyword = state.keyword;
           }
+
           emit(SearchLoading(
               state.isSearchFieldEmpty,
               state.type,
@@ -163,7 +175,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               lazyItems,
               items,
               item.nav.next.isEmpty,
-              state.keyword,
+              keyword,
               item.nav));
           print('fdsa');
         }

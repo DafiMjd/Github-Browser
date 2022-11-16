@@ -17,7 +17,8 @@ abstract class SearchState extends Equatable {
       this.pagingItems,
       this.hasReachedMax,
       this.keyword,
-      this.nav);
+      this.nav,
+      );
 
   @override
   List<Object> get props => [
@@ -28,7 +29,8 @@ abstract class SearchState extends Equatable {
         pagingItems,
         hasReachedMax,
         keyword,
-        nav
+        nav,
+        
       ];
 }
 
@@ -41,7 +43,8 @@ class SearchInitial extends SearchState {
       super.pagingItems,
       super.hasReachedMax,
       super.keyword,
-      super.nav);
+      super.nav,
+      );
 
   @override
   List<Object> get props => [
@@ -52,7 +55,8 @@ class SearchInitial extends SearchState {
         pagingItems,
         hasReachedMax,
         keyword,
-        nav
+        nav,
+        
       ];
 }
 
@@ -65,7 +69,8 @@ class SearchTypingSearchBox extends SearchState {
       super.pagingItems,
       super.hasReachedMax,
       super.keyword,
-      super.nav);
+      super.nav,
+      );
 
   @override
   List<Object> get props => [
@@ -76,7 +81,8 @@ class SearchTypingSearchBox extends SearchState {
         pagingItems,
         hasReachedMax,
         keyword,
-        nav
+        nav,
+        
       ];
 }
 
@@ -89,7 +95,8 @@ class SearchTypeChosen extends SearchState {
       super.pagingItems,
       super.hasReachedMax,
       super.keyword,
-      super.nav);
+      super.nav,
+      );
 
   @override
   List<Object> get props => [
@@ -100,7 +107,8 @@ class SearchTypeChosen extends SearchState {
         pagingItems,
         hasReachedMax,
         keyword,
-        nav
+        nav,
+        
       ];
 }
 
@@ -113,7 +121,8 @@ class SearchPagingOptionChanged extends SearchState {
       super.pagingItems,
       super.hasReachedMax,
       super.keyword,
-      super.nav);
+      super.nav,
+      );
 
   @override
   List<Object> get props => [
@@ -124,7 +133,8 @@ class SearchPagingOptionChanged extends SearchState {
         pagingItems,
         hasReachedMax,
         keyword,
-        nav
+        nav,
+        
       ];
 }
 
@@ -138,6 +148,7 @@ class SearchLoading extends SearchState {
     super.hasReachedMax,
     super.keyword,
     super.nav,
+  
   );
 
   @override
@@ -149,7 +160,8 @@ class SearchLoading extends SearchState {
         pagingItems,
         hasReachedMax,
         keyword,
-        nav
+        nav,
+        
       ];
 }
 
@@ -162,33 +174,8 @@ class SearchLoaded extends SearchState {
       super.pagingItems,
       super.hasReachedMax,
       super.keyword,
-      super.nav);
-
-  @override
-  List<Object> get props => [
-        isSearchFieldEmpty,
-        type,
-        isLazyLoading,
-        lazyItems,
-        pagingItems,
-        hasReachedMax,
-        keyword,
-        nav
-      ];
-}
-
-class SearchFetchFailed extends SearchState {
-  final String error;
-  const SearchFetchFailed(
-      super.isSearchFieldEmpty,
-      super.type,
-      super.isLazyLoading,
-      super.lazyItems,
-      super.pagingItems,
-      super.hasReachedMax,
-      super.keyword,
       super.nav,
-      this.error);
+      );
 
   @override
   List<Object> get props => [
@@ -200,6 +187,36 @@ class SearchFetchFailed extends SearchState {
         hasReachedMax,
         keyword,
         nav,
-        error
+        
+      ];
+}
+
+
+class SearchFetchFailed extends SearchState {
+  final String error;
+  const SearchFetchFailed(
+    super.isSearchFieldEmpty,
+    super.type,
+    super.isLazyLoading,
+    super.lazyItems,
+    super.pagingItems,
+    super.hasReachedMax,
+    super.keyword,
+    super.nav,
+    this.error,
+  );
+
+  @override
+  List<Object> get props => [
+        isSearchFieldEmpty,
+        type,
+        isLazyLoading,
+        lazyItems,
+        pagingItems,
+        hasReachedMax,
+        keyword,
+        nav,
+        error,
+        
       ];
 }

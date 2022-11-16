@@ -17,8 +17,8 @@ import 'package:github_browser/widget/search_box.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 
 class SearchPage extends StatefulWidget {
-  String keyword;
-  SearchPage({Key? key, required this.keyword}) : super(key: key);
+  String firstKeyword;
+  SearchPage({Key? key, required this.firstKeyword}) : super(key: key);
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -29,8 +29,10 @@ class _SearchPageState extends State<SearchPage> {
   late TextEditingController searchCtrl;
   bool hasReachedMax = false;
   bool isLazyLoading = true;
+  late String keyword;
 
-  void setupScrollController(context, keyword) {
+
+  void setupScrollController(context) {
     scrollController.addListener(() {
       var maxScroll = scrollController.position.maxScrollExtent;
       var position = scrollController.position.pixels;
@@ -50,9 +52,10 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void initState() {
-    setupScrollController(context, widget.keyword);
-    BlocProvider.of<SearchBloc>(context).add(SearchFetchItems(widget.keyword));
-    searchCtrl = TextEditingController(text: widget.keyword);
+    keyword = widget.firstKeyword;
+    setupScrollController(context);
+    BlocProvider.of<SearchBloc>(context).add(SearchFetchItems(widget.firstKeyword));
+    searchCtrl = TextEditingController(text: widget.firstKeyword);
 
     super.initState();
   }
@@ -70,6 +73,7 @@ class _SearchPageState extends State<SearchPage> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(onPressed: () {}),
         body: SafeArea(
           child: SingleChildScrollView(
             controller: scrollController,
@@ -88,6 +92,7 @@ class _SearchPageState extends State<SearchPage> {
 
                       return SearchBox(
                         submit: (value) {
+                          keyword = value;
                           if (value.isNotEmpty) {
                             context
                                 .read<SearchBloc>()
@@ -95,7 +100,7 @@ class _SearchPageState extends State<SearchPage> {
                           }
                         },
                         onChanged: (value) {
-                          widget.keyword = value;
+                          keyword = value;
                           context
                               .read<SearchBloc>()
                               .add(SearchTypeSearchBox(value.isEmpty));
@@ -106,7 +111,7 @@ class _SearchPageState extends State<SearchPage> {
                               icon: const Icon(Icons.cancel),
                               onPressed: () {
                                 searchCtrl.text = '';
-                                widget.keyword = '';
+                                keyword = '';
                               },
                             )),
                         ctrl: searchCtrl,
@@ -249,8 +254,8 @@ class _SearchPageState extends State<SearchPage> {
     return Padding(
         padding: const EdgeInsets.all(8),
         child: Center(
-            child:
-                Text('No Data', style: Theme.of(context).textTheme.titleMedium)));
+            child: Text('No Data',
+                style: Theme.of(context).textTheme.titleMedium)));
   }
 
   Container _typeWidget(SearchState state, bool enabled) {

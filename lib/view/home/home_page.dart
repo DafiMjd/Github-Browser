@@ -52,7 +52,10 @@ class _HomePageState extends State<HomePage> {
                       height: mQueryWidth(context, size: 0.3),
                     ),
                     verticalSpace(20),
-                    const Text('Github Browser'),
+                     Text(
+                      'Github Browser',
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(fontStyle: FontStyle.normal),
+                    ),
                     verticalSpace(30),
                     SearchBox(
                       submit: (value) {
@@ -61,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => SearchPage(
-                                  keyword: searchCtrl.text,
+                                  firstKeyword: searchCtrl.text,
                                 ),
                               ));
                       },
@@ -106,7 +109,7 @@ class _HomePageState extends State<HomePage> {
               context,
               MaterialPageRoute(
                 builder: (context) => SearchPage(
-                  keyword: 'doraemon',
+                  firstKeyword: 'doraemon',
                 ),
               ));
         },
