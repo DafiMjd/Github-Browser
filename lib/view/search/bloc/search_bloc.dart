@@ -34,7 +34,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   SearchBloc(this._postRepo)
-      : super(const SearchInitial(true, SearchType.user, true, [], [], false)) {
+      : super(const SearchInitial(
+            true, SearchType.user, true, [], [], false, '')) {
     CancelableOperation? _myCancelableFuture;
     int page = 1;
     on<SearchTypeSearchBox>((event, emit) {
@@ -44,7 +45,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           state.isLazyLoading,
           state.lazyItems,
           state.pagingItems,
-          state.hasReachedMax));
+          state.hasReachedMax,
+          state.keyword));
     });
 
     on<SearchChooseType>((event, emit) {
@@ -54,7 +56,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           state.isLazyLoading,
           state.lazyItems,
           state.pagingItems,
-          state.hasReachedMax));
+          state.hasReachedMax,
+          state.keyword));
     });
 
     on<SearchChangePagingOption>((event, emit) {
@@ -64,7 +67,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           event.isLazyLoading,
           state.lazyItems,
           state.pagingItems,
-          state.hasReachedMax));
+          state.hasReachedMax,
+          state.keyword));
     });
 
     List<dynamic> _getItems(item) {
@@ -87,7 +91,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     Future<void> _cancelFuture() async {
       await _myCancelableFuture?.cancel();
-          print('fdsa');
+      print('fdsa');
     }
 
     on<SearchFetchItems>((event, emit) async {
@@ -99,20 +103,50 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         List items = _getItems(item);
 
         if (state is SearchInitial) {
-          emit(SearchLoaded(state.isSearchFieldEmpty, state.type,
-              state.isLazyLoading, items, items, item.nav.next.isEmpty));
-        } else {
-          emit(SearchLoading(state.isSearchFieldEmpty, state.type,
-              state.isLazyLoading, state.lazyItems, state.pagingItems, false));
-          // emit(MainLoadingState(posts, isFirstFetch: page == 1));
-          // MainLoadedState postLoaded = state as MainLoadedState;
+          emit(SearchLoading(
+              state.isSearchFieldEmpty,
+              state.type,
+              state.isLazyLoading,
+              state.lazyItems,
+              state.pagingItems,
+              false,
+              event.keyword));
           emit(SearchLoaded(
               state.isSearchFieldEmpty,
               state.type,
               state.isLazyLoading,
-              state.lazyItems + items,
               items,
-              item.nav.next.isEmpty));
+              items,
+              item.nav.next.isEmpty,
+              state.keyword));
+        } else {
+          late List lazyItems;
+          late String keyword;
+
+          if (event.keyword != state.keyword) {
+            lazyItems = items;
+            keyword = event.keyword;
+          } else {
+            lazyItems = state.lazyItems + items;
+            keyword = state.keyword;
+          }
+          emit(SearchLoading(
+              state.isSearchFieldEmpty,
+              state.type,
+              state.isLazyLoading,
+              state.lazyItems,
+              state.pagingItems,
+              false,
+              keyword));
+
+          emit(SearchLoaded(
+              state.isSearchFieldEmpty,
+              state.type,
+              state.isLazyLoading,
+              lazyItems,
+              items,
+              item.nav.next.isEmpty,
+              state.keyword));
           print('fdsa');
         }
 
@@ -122,9 +156,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       }
     });
 
-    on<SearchCancelFuture>((event, emit) async {
-      _cancelFuture();
-      emit(const SearchInitial(true, SearchType.user, true, [], [], false));
-    });
+    // on<SearchCancelFuture>((event, emit) async {
+    //   _cancelFuture();
+    //   emit(const SearchInitial(true, SearchType.user, true, [], [], false));
+    // });
   }
 }

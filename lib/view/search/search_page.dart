@@ -1,5 +1,6 @@
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_browser/data/model/issue_response.dart';
 import 'package:github_browser/data/model/repository_response.dart';
@@ -65,12 +66,8 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     final ThemeData mode = Theme.of(context);
     bool isDark = mode.brightness == Brightness.dark;
-    return WillPopScope(
-      onWillPop: () async {
-        context.read<SearchBloc>().add(SearchCancelFuture());
-        Navigator.pop(context);
-        return true;
-      },
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
         body: SafeArea(
           child: SingleChildScrollView(

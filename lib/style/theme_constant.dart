@@ -37,7 +37,7 @@ ThemeData darkTheme = ThemeData(
   ),
   radioTheme: RadioThemeData(
     fillColor: MaterialStateProperty.resolveWith((states) {
-      return Colors.black;
+      return RADIO_COLOR_DARK;
     }),
   ),
 );
