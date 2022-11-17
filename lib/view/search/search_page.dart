@@ -1,11 +1,9 @@
-import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:github_browser/data/model/issue_response.dart';
 import 'package:github_browser/data/model/repository_response.dart';
-import 'package:github_browser/data/model/user.dart';
 import 'package:github_browser/data/model/user_response.dart';
 import 'package:github_browser/data/search_type.dart';
 import 'package:github_browser/style/theme_constant.dart';
@@ -18,8 +16,8 @@ import 'package:shimmer/shimmer.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 
 class SearchPage extends StatefulWidget {
-  String firstKeyword;
-  SearchPage({Key? key, required this.firstKeyword}) : super(key: key);
+  final String firstKeyword;
+  const SearchPage({Key? key, required this.firstKeyword}) : super(key: key);
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -75,130 +73,14 @@ class _SearchPageState extends State<SearchPage> {
     final ThemeData mode = Theme.of(context);
     bool isDark = mode.brightness == Brightness.dark;
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
-      child: Scaffold(
-        floatingActionButton: FloatingActionButton(onPressed: () {}),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            controller: scrollController,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                children: [
-                  BlocBuilder<SearchBloc, SearchState>(
-                    builder: (context, state) {
-                      late bool enabled;
-                      if (state is SearchLoading) {
-                        enabled = false;
-                      } else {
-                        enabled = true;
-                      }
-
-                      return InkWell(
-                        highlightColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        onTap: () => myFocusNode.requestFocus(),
-                        child: SearchBox(
-                            submit: (value) {
-                              keyword = value;
-                              if (value.isNotEmpty) {
-                                context
-                                    .read<SearchBloc>()
-                                    .add(SearchFetchItems(searchCtrl.text));
-                              }
-                            },
-                            onChanged: (value) {
-                              keyword = value;
-                              context
-                                  .read<SearchBloc>()
-                                  .add(SearchTypeSearchBox(value.isEmpty));
-                            },
-                            trailing: Visibility(
-                                visible: !state.isSearchFieldEmpty,
-                                child: IconButton(
-                                  icon: const Icon(Icons.cancel),
-                                  onPressed: () {
-                                    searchCtrl.text = '';
-                                    keyword = '';
-                                    context
-                                        .read<SearchBloc>()
-                                        .add(SearchTypeSearchBox(true));
-                                  },
-                                )),
-                            ctrl: searchCtrl,
-                            enabled: enabled,
-                            focusNode: myFocusNode),
-                      );
-                    },
-                  ),
-                  verticalSpace(10),
-                  BlocConsumer<SearchBloc, SearchState>(
-                    listener: (context, state) {
-                      if (state is SearchFetchFailed) {
-                        // _showDialog(context, state.error);
-                        Fluttertoast.showToast(msg: state.error);
-                      }
-                    },
-                    builder: (context, state) {
-                      late bool enabled;
-                      if (state is SearchLoading) {
-                        enabled = false;
-                      } else {
-                        enabled = true;
-                      }
-                      if (state.hasReachedMax) hasReachedMax = true;
-                      late List items;
-                      if (state.isLazyLoading) {
-                        items = state.lazyItems;
-                        isLazyLoading = true;
-                      } else {
-                        _scrollTop();
-                        items = state.pagingItems;
-                        isLazyLoading = false;
-                      }
-                      bool isItemsEmpty = items.isEmpty;
-
-                      return StickyHeader(
-                          header: Container(
-                            color: isDark
-                                ? darkTheme.canvasColor
-                                : lightTheme.canvasColor,
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                // mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  _typeWidget(state, enabled),
-                                  _paginType(state, context, enabled)
-                                ]),
-                          ),
-                          content: 
-                          // _loadingIndicator());
-                      (state is SearchLoading ||
-                              state is SearchInitial ||
-                              state is SearchTypeChosen)
-                          ? _loadingIndicator()
-                          : (isItemsEmpty)
-                              ? _noData()
-                              : ListView.builder(
-                                  itemCount: state.hasReachedMax ||
-                                          !state.isLazyLoading
-                                      ? items.length
-                                      : items.length + 1,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemBuilder: (context, index) => (index <
-                                          items.length)
-                                      ? _getItem(state.type, items[index])
-                                      : _loadingIndicator()));
-                    },
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-        bottomNavigationBar: BlocBuilder<SearchBloc, SearchState>(
+        value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+        child: BlocConsumer<SearchBloc, SearchState>(
+          listener: (context, state) {
+            if (state is SearchFetchFailed) {
+              // _showDialog(context, state.error);
+              Fluttertoast.showToast(msg: state.error);
+            }
+          },
           builder: (context, state) {
             late bool enabled;
             if (state is SearchLoading) {
@@ -206,25 +88,121 @@ class _SearchPageState extends State<SearchPage> {
             } else {
               enabled = true;
             }
-            return Visibility(
-              visible: !state.isLazyLoading &&
-                  state.lazyItems.isNotEmpty &&
-                  state.pagingItems.isNotEmpty,
-              child: PageIndexWidget(
-                start: state.nav.first.isEmpty ? 0 : int.parse(state.nav.first),
-                end: state.nav.last.isEmpty ? 0 : int.parse(state.nav.last),
-                current: state.nav.current.isEmpty
-                    ? 0
-                    : int.parse(state.nav.current),
-                prev: state.nav.prev.isEmpty ? 0 : int.parse(state.nav.prev),
-                next: state.nav.next.isEmpty ? 0 : int.parse(state.nav.next),
-                enabled: enabled,
+            if (state.hasReachedMax) hasReachedMax = true;
+            late List items;
+            if (state.isLazyLoading) {
+              items = state.lazyItems;
+              isLazyLoading = true;
+            } else {
+              _scrollTop();
+              items = state.pagingItems;
+              isLazyLoading = false;
+            }
+            bool isItemsEmpty = items.isEmpty;
+            return Scaffold(
+              floatingActionButton: FloatingActionButton(onPressed: () {}),
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      children: [
+                        InkWell(
+                          highlightColor: FOCURS_COLOR,
+                          splashColor: FOCURS_COLOR,
+                          focusColor: FOCURS_COLOR,
+                          onTap: () => myFocusNode.requestFocus(),
+                          child: SearchBox(
+                              submit: (value) {
+                                keyword = value;
+                                if (value.isNotEmpty) {
+                                  context
+                                      .read<SearchBloc>()
+                                      .add(SearchFetchItems(searchCtrl.text));
+                                }
+                              },
+                              onChanged: (value) {
+                                keyword = value;
+                                context
+                                    .read<SearchBloc>()
+                                    .add(SearchTypeSearchBox(value.isEmpty));
+                              },
+                              trailing: Visibility(
+                                  visible: !state.isSearchFieldEmpty,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.cancel),
+                                    onPressed: () {
+                                      searchCtrl.text = '';
+                                      keyword = '';
+                                      context
+                                          .read<SearchBloc>()
+                                          .add(const SearchTypeSearchBox(true));
+                                    },
+                                  )),
+                              ctrl: searchCtrl,
+                              enabled: enabled,
+                              focusNode: myFocusNode),
+                        ),
+                        verticalSpace(10),
+                        StickyHeader(
+                            header: Container(
+                              color: isDark
+                                  ? darkTheme.canvasColor
+                                  : lightTheme.canvasColor,
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  // mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    _typeWidget(state, enabled),
+                                    _paginType(state, context, enabled)
+                                  ]),
+                            ),
+                            content:
+                                // _loadingIndicator());
+                                (state is SearchLoading ||
+                                        state is SearchInitial ||
+                                        state is SearchTypeChosen)
+                                    ? _loadingIndicator()
+                                    : (isItemsEmpty)
+                                        ? _noData()
+                                        : ListView.builder(
+                                            itemCount: state.hasReachedMax ||
+                                                    !state.isLazyLoading
+                                                ? items.length
+                                                : items.length + 1,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            shrinkWrap: true,
+                                            itemBuilder: (context, index) =>
+                                                (index < items.length)
+                                                    ? _getItem(state.type,
+                                                        items[index])
+                                                    : _loadingIndicator())),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              bottomNavigationBar: Visibility(
+                visible: !state.isLazyLoading &&
+                    state.lazyItems.isNotEmpty &&
+                    state.pagingItems.isNotEmpty,
+                child: PageIndexWidget(
+                  start:
+                      state.nav.first.isEmpty ? 0 : int.parse(state.nav.first),
+                  end: state.nav.last.isEmpty ? 0 : int.parse(state.nav.last),
+                  current: state.nav.current.isEmpty
+                      ? 0
+                      : int.parse(state.nav.current),
+                  prev: state.nav.prev.isEmpty ? 0 : int.parse(state.nav.prev),
+                  next: state.nav.next.isEmpty ? 0 : int.parse(state.nav.next),
+                  enabled: enabled,
+                ),
               ),
             );
           },
-        ),
-      ),
-    );
+        ));
   }
 
   Row _paginType(SearchState state, BuildContext context, bool enabled) {
@@ -270,8 +248,8 @@ class _SearchPageState extends State<SearchPage> {
     // Padding(padding: EdgeInsets.all(8), child: Shimmer(),)
 
     return Shimmer.fromColors(
-      baseColor: Color.fromARGB(255, 211, 208, 208),
-      highlightColor: Colors.white,
+      baseColor: SKELETON_COLOR,
+      highlightColor: SKELETON_HIGHLIGHT_COLOR,
       // enabled: _enabled,
       child: ListView.builder(
         shrinkWrap: true,
@@ -281,17 +259,17 @@ class _SearchPageState extends State<SearchPage> {
             leading: Container(
               width: 60,
               height: 60,
-              color: Colors.white,
+              color: SKELETON_HIGHLIGHT_COLOR,
             ),
             title: Container(
               width: double.maxFinite,
               height: 10,
-              color: Colors.white,
+              color: SKELETON_HIGHLIGHT_COLOR,
             ),
             subtitle: Container(
               width: double.maxFinite,
               height: 10,
-              color: Colors.white,
+              color: SKELETON_HIGHLIGHT_COLOR,
             ),
           ),
         ),
@@ -375,7 +353,7 @@ class RepositoryWidget extends StatelessWidget {
               maxLines: 2,
             ),
           ),
-          subtitle: Text(repo.createdAt),
+          subtitle: Text(dateFormat(repo.createdAt)),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,7 +365,7 @@ class RepositoryWidget extends StatelessWidget {
                   Icon(
                     Icons.remove_red_eye,
                     size: mQueryWidth(context, size: 0.04),
-                    color: Colors.green,
+                    color: WATCHER_ICON_COLOR,
                   ),
                   horizontalSpace(3),
                   Text(repo.watcher.toString())
@@ -400,7 +378,7 @@ class RepositoryWidget extends StatelessWidget {
                   Icon(
                     Icons.star,
                     size: mQueryWidth(context, size: 0.04),
-                    color: Colors.yellow,
+                    color: STAR_ICON_COLOR,
                   ),
                   horizontalSpace(3),
                   Text(repo.star.toString())
@@ -413,7 +391,7 @@ class RepositoryWidget extends StatelessWidget {
                   Icon(
                     Icons.fork_right,
                     size: mQueryWidth(context, size: 0.04),
-                    color: Colors.grey,
+                    color: ALL_STATE_COLOR,
                   ),
                   horizontalSpace(3),
                   Text(repo.fork.toString())
@@ -442,19 +420,19 @@ class IssueWidget extends StatelessWidget {
       switch (state) {
         case 'open':
           {
-            color = Colors.green;
+            color = OPEN_STATE_COLOR;
             issueString = 'Open';
             break;
           }
         case 'all':
           {
-            color = Colors.grey;
+            color = ALL_STATE_COLOR;
             issueString = 'All';
             break;
           }
         case 'closed':
           {
-            color = Colors.red;
+            color = CLOSED_STATE_COLOR;
             issueString = 'Closed';
             break;
           }
@@ -477,7 +455,7 @@ class IssueWidget extends StatelessWidget {
               maxLines: 2,
             ),
           ),
-          subtitle: Text(issue.updatedAt),
+          subtitle: Text(dateFormat(issue.updatedAt)),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,

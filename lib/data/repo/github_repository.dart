@@ -18,7 +18,7 @@ class GithubRepository {
 
       if (response['limit'] == '0') throw 'limit-excedeed';
 
-      if (response == null) throw 'error';
+      // if (response == null) throw 'error';
 
       late IndexNavigation indexNav;
 
@@ -30,7 +30,7 @@ class GithubRepository {
 
       var data = jsonDecode(response['body'] ?? '');
 
-      late var json;
+      late List json;
       if (data.isEmpty || data['items'] == null) {
         json = [];
       } else {

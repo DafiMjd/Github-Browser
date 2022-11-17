@@ -5,6 +5,19 @@ import 'package:flutter/material.dart';
 const Color PRIMARY_COLOR = Color(0xFF438440);
 const Color RADIO_COLOR_DARK = Color.fromARGB(255, 163, 199, 250);
 const Color RADIO_COLOR_LIGHT = Color(0xFF3273f6);
+const Color SKELETON_COLOR = Color.fromARGB(255, 211, 208, 208);
+const Color SKELETON_HIGHLIGHT_COLOR = Colors.white;
+const Color FOCURS_COLOR = Colors.transparent;
+
+// repo
+const Color WATCHER_ICON_COLOR = Colors.green;
+const Color STAR_ICON_COLOR = Colors.yellow;
+const Color FORM_ICON_COLOR = Colors.grey;
+
+// issue
+const Color CLOSED_STATE_COLOR = Colors.red;
+const Color OPEN_STATE_COLOR = Colors.green;
+const Color ALL_STATE_COLOR = Colors.grey;
 
 ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,

@@ -32,10 +32,7 @@ class SearchBox extends StatelessWidget {
               onFieldSubmitted: submit,
               onChanged: onChanged,
               decoration: const InputDecoration.collapsed(
-                  hintText: 'Search repos/users/issues',
-                  focusColor: Colors.red,
-                  fillColor: Colors.red,
-                  hoverColor: Colors.red),
+                  hintText: 'Search repos/users/issues',),
             ),
             trailing: trailing),
       ),

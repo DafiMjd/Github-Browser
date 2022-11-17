@@ -1,13 +1,9 @@
 import 'package:async/async.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:github_browser/data/model/index_navigation.dart';
-import 'package:github_browser/data/model/issue.dart';
 import 'package:github_browser/data/model/issue_response.dart';
-import 'package:github_browser/data/model/repository.dart';
 import 'package:github_browser/data/model/repository_response.dart';
-import 'package:github_browser/data/model/user.dart';
 import 'package:github_browser/data/model/user_response.dart';
 import 'package:github_browser/data/repo/github_repository.dart';
 import 'package:github_browser/data/search_type.dart';
@@ -19,8 +15,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final GithubRepository _postRepo;
 
   SearchBloc(this._postRepo)
-      : super(SearchInitial(true, SearchType.user, true, [], [], false, '',
-            IndexNavigation('', '', '', '', ''))) {
+      : super(SearchInitial(true, SearchType.user, true, const [], const [],
+            false, '', IndexNavigation('', '', '', '', ''))) {
     CancelableOperation? _myCancelableFuture;
     int page = 1;
     on<SearchTypeSearchBox>((event, emit) {
@@ -42,8 +38,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           state.isSearchFieldEmpty,
           event.type,
           state.isLazyLoading,
-          [],
-          [],
+          const [],
+          const [],
           state.hasReachedMax,
           state.keyword,
           state.nav));
@@ -85,8 +81,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       }
     }
 
-    Future<dynamic> _getData(String keyword, SearchType type,
-        {searchPage = 1}) async {
+    Future<dynamic> _getData(String keyword, SearchType type,) async {
       try {
         var result = await _postRepo.fetchGithub(
             _getType(type), keyword, page.toString());
@@ -94,9 +89,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         return result;
       } catch (e) {
         if (e == 'limit-excedeed') {
-          add(SearchFetchFail('API limit call has been exceeded'));
+          add(const SearchFetchFail('API limit call has been exceeded'));
         } else if (e == 'offline') {
-          add(SearchFetchFail('You are offline, check your connection'));
+          add(const SearchFetchFail('You are offline, check your connection'));
         }
         // rethrow;
       }
@@ -104,7 +99,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     Future<void> _cancelFuture() async {
       await _myCancelableFuture?.cancel();
-      print('fdsa');
     }
 
     on<SearchFetchItems>((event, emit) async {

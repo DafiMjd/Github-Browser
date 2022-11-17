@@ -6,7 +6,6 @@ import 'package:github_browser/style/theme_manager.dart';
 import 'package:github_browser/view/home/bloc/home_bloc.dart';
 import 'package:github_browser/view/home/home_page.dart';
 import 'package:github_browser/view/search/bloc/search_bloc.dart';
-import 'package:github_browser/view/search/search_page.dart';
 
 void main() {
   runApp(MultiBlocProvider(

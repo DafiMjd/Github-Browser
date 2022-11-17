@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 double mQueryWidth(BuildContext context, {double size = 1}) {
   if (size > 1) size = 1;
@@ -47,4 +48,11 @@ List<int> getPagination(current, max) {
   }
 
   return rangeWithDots;
+}
+
+String dateFormat(String isoDate) {
+  final dateTime = DateTime.parse(isoDate);
+  final format = DateFormat('y-MM-dd');
+  final date = format.format(dateTime);
+  return date;
 }

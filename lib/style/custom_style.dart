@@ -3,7 +3,7 @@ import 'package:github_browser/style/theme_constant.dart';
 
 class CustomStyle {
   static ButtonStyle button(bool isPrimary, bool isDark) {
-    var bgColor = (isDark) ? darkTheme.canvasColor : Colors.white;
+    var bgColor = (isDark) ? darkTheme.canvasColor : lightTheme.canvasColor;
     return ButtonStyle(
         backgroundColor:
             MaterialStateProperty.all(isPrimary ? PRIMARY_COLOR : bgColor),

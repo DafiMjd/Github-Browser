@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:github_browser/style/theme_constant.dart';
 import 'package:github_browser/style/theme_manager.dart';
 import 'package:github_browser/utils/global_function.dart';
 import 'package:github_browser/view/home/bloc/home_bloc.dart';
@@ -69,9 +70,9 @@ class _HomePageState extends State<HomePage> {
                     ),
                     verticalSpace(30),
                     InkWell(
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      focusColor: Colors.transparent,
+                      highlightColor: FOCURS_COLOR,
+                      splashColor: FOCURS_COLOR,
+                      focusColor: FOCURS_COLOR,
                       onTap: () => myFocusNode.requestFocus(),
                       child: SearchBox(
                         submit: (value) {
@@ -105,7 +106,7 @@ class _HomePageState extends State<HomePage> {
                                       searchCtrl.text = '';
                                       context
                                           .read<HomeBloc>()
-                                          .add(HomeTypeSearchBox(true));
+                                          .add(const HomeTypeSearchBox(true));
                                     },
                                   ));
                             }
