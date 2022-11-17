@@ -112,7 +112,14 @@ class _SearchPageState extends State<SearchPage> {
                           highlightColor: FOCURS_COLOR,
                           splashColor: FOCURS_COLOR,
                           focusColor: FOCURS_COLOR,
-                          onTap: () => myFocusNode.requestFocus(),
+                          onTap: () {
+                            if (searchCtrl.text.isNotEmpty) {
+                              context
+                                  .read<SearchBloc>()
+                                  .add(const SearchTypeSearchBox(false));
+                            }
+                            myFocusNode.requestFocus();
+                          },
                           child: SearchBox(
                               submit: (value) {
                                 keyword = value;
@@ -166,19 +173,22 @@ class _SearchPageState extends State<SearchPage> {
                                     ? _loadingIndicator()
                                     : (isItemsEmpty)
                                         ? _noData()
-                                        : ListView.builder(
-                                            itemCount: state.hasReachedMax ||
-                                                    !state.isLazyLoading
-                                                ? items.length
-                                                : items.length + 1,
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            shrinkWrap: true,
-                                            itemBuilder: (context, index) =>
-                                                (index < items.length)
-                                                    ? _getItem(state.type,
-                                                        items[index])
-                                                    : _loadingIndicator())),
+                                        : RepaintBoundary(
+                                            child: ListView.builder(
+                                                itemCount:
+                                                    state.hasReachedMax ||
+                                                            !state.isLazyLoading
+                                                        ? items.length
+                                                        : items.length + 1,
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                shrinkWrap: true,
+                                                itemBuilder: (context, index) =>
+                                                    (index < items.length)
+                                                        ? _getItem(state.type,
+                                                            items[index])
+                                                        : _loadingCircularIndicator()),
+                                          )),
                       ],
                     ),
                   ),
@@ -240,6 +250,12 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  Widget _loadingCircularIndicator() {
+    return const Padding(
+        padding: EdgeInsets.all(8),
+        child: Center(child: CircularProgressIndicator()));
+  }
+
   Widget _loadingIndicator() {
     // return const Padding(
     //     padding: EdgeInsets.all(8),
@@ -247,34 +263,40 @@ class _SearchPageState extends State<SearchPage> {
 
     // Padding(padding: EdgeInsets.all(8), child: Shimmer(),)
 
-    return Shimmer.fromColors(
-      baseColor: SKELETON_COLOR,
-      highlightColor: SKELETON_HIGHLIGHT_COLOR,
-      // enabled: _enabled,
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemBuilder: (_, __) => Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListTile(
-            leading: Container(
-              width: 60,
-              height: 60,
-              color: SKELETON_HIGHLIGHT_COLOR,
-            ),
-            title: Container(
-              width: double.maxFinite,
-              height: 10,
-              color: SKELETON_HIGHLIGHT_COLOR,
-            ),
-            subtitle: Container(
-              width: double.maxFinite,
-              height: 10,
-              color: SKELETON_HIGHLIGHT_COLOR,
+    return RepaintBoundary(
+      child: Shimmer.fromColors(
+        baseColor: SKELETON_COLOR,
+        highlightColor: SKELETON_HIGHLIGHT_COLOR,
+        // enabled: _enabled,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemBuilder: (_, __) => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListTile(
+              leading: _loadingImage(),
+              title: Container(
+                width: double.maxFinite,
+                height: 10,
+                color: SKELETON_HIGHLIGHT_COLOR,
+              ),
+              subtitle: Container(
+                width: double.maxFinite,
+                height: 10,
+                color: SKELETON_HIGHLIGHT_COLOR,
+              ),
             ),
           ),
+          itemCount: 15,
         ),
-        itemCount: 15,
       ),
+    );
+  }
+
+  Container _loadingImage() {
+    return Container(
+      width: 60,
+      height: 60,
+      color: SKELETON_HIGHLIGHT_COLOR,
     );
   }
 
@@ -291,29 +313,31 @@ class _SearchPageState extends State<SearchPage> {
       alignment: Alignment.centerLeft,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SearchTypeWidget(
-              text: 'Users',
-              groupValue: state.type,
-              enabled: enabled,
-              value: SearchType.user,
-            ),
-            SearchTypeWidget(
-              text: 'Issues',
-              groupValue: state.type,
-              enabled: enabled,
-              value: SearchType.issue,
-            ),
-            SearchTypeWidget(
-              text: 'Repositories',
-              groupValue: state.type,
-              enabled: enabled,
-              value: SearchType.repository,
-            ),
-          ],
+        child: RepaintBoundary(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SearchTypeWidget(
+                text: 'Users',
+                groupValue: state.type,
+                enabled: enabled,
+                value: SearchType.user,
+              ),
+              SearchTypeWidget(
+                text: 'Issues',
+                groupValue: state.type,
+                enabled: enabled,
+                value: SearchType.issue,
+              ),
+              SearchTypeWidget(
+                text: 'Repositories',
+                groupValue: state.type,
+                enabled: enabled,
+                value: SearchType.repository,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -488,7 +512,17 @@ class UserWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-          leading: Image.network(user.imageUrl),
+          leading: Image.network(
+            user.imageUrl,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return _loadingImage();
+            },
+            // frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
+            //     _loadingImage(),
+            errorBuilder: (context, error, stackTrace) =>
+                Image.asset('assets/images/no_image.png'),
+          ),
           // leading: Icon(Icons.abc),
           title: Text(
             user.username,
@@ -499,6 +533,18 @@ class UserWidget extends StatelessWidget {
             maxLines: 1,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _loadingImage() {
+    return Shimmer.fromColors(
+      baseColor: SKELETON_COLOR,
+      highlightColor: SKELETON_HIGHLIGHT_COLOR,
+      child: Container(
+        width: 60,
+        height: 60,
+        color: SKELETON_HIGHLIGHT_COLOR,
       ),
     );
   }

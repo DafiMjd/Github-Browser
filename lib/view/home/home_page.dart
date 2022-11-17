@@ -10,19 +10,16 @@ import 'package:github_browser/view/search/search_page.dart';
 import 'package:github_browser/widget/search_box.dart';
 
 class HomePage extends StatefulWidget {
-  final ThemeManager themeManager;
-  const HomePage({Key? key, required this.themeManager}) : super(key: key);
+  const HomePage({Key? key,}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  late String mode;
   late FocusNode myFocusNode; // activate textfield
   @override
   void initState() {
-    mode = widget.themeManager.themeMode == ThemeMode.dark ? 'dark' : 'light';
     myFocusNode = FocusNode();
     super.initState();
   }
@@ -37,16 +34,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     var searchCtrl = TextEditingController();
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          Switch(
-              value: widget.themeManager.themeMode == ThemeMode.dark,
-              // value: false,
-              onChanged: (value) {
-                widget.themeManager.toggleTheme(value);
-              })
-        ],
-      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -56,7 +43,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/images/github_icon_$mode.png',
+                      'assets/images/github_icon_light.png',
                       width: mQueryHeight(context, size: 0.3),
                       height: mQueryWidth(context, size: 0.3),
                     ),
