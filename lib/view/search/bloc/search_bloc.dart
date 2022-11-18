@@ -47,7 +47,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       add(SearchFetchItems(state.keyword));
     });
 
-    
+
 
     on<SearchChangePagingOption>((event, emit) {
       emit(SearchPagingOptionChanged(
@@ -104,6 +104,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
 
     on<SearchFetchItems>((event, emit) async {
+      // if keyword, page, type, exist in cache
+      // return cache
+      // else do below
       try {
         if (state is SearchInitial) {
           emit(SearchLoading(

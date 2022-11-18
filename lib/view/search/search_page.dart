@@ -100,7 +100,6 @@ class _SearchPageState extends State<SearchPage> {
             }
             bool isItemsEmpty = items.isEmpty;
             return Scaffold(
-              floatingActionButton: FloatingActionButton(onPressed: () {}),
               body: SafeArea(
                 child: SingleChildScrollView(
                   controller: scrollController,
