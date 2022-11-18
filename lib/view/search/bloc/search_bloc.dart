@@ -47,6 +47,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       add(SearchFetchItems(state.keyword));
     });
 
+    
+
     on<SearchChangePagingOption>((event, emit) {
       emit(SearchPagingOptionChanged(
           state.isSearchFieldEmpty,

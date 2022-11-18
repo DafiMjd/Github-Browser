@@ -392,7 +392,7 @@ class RepositoryWidget extends StatelessWidget {
                     color: WATCHER_ICON_COLOR,
                   ),
                   horizontalSpace(3),
-                  Text(repo.watcher.toString())
+                  Text(numberFormat(repo.watcher.toDouble(), 0))
                 ],
               ),
               Row(
@@ -405,7 +405,7 @@ class RepositoryWidget extends StatelessWidget {
                     color: STAR_ICON_COLOR,
                   ),
                   horizontalSpace(3),
-                  Text(repo.star.toString())
+                  Text(numberFormat(repo.star.toDouble(), 0))
                 ],
               ),
               Row(
@@ -418,7 +418,7 @@ class RepositoryWidget extends StatelessWidget {
                     color: ALL_STATE_COLOR,
                   ),
                   horizontalSpace(3),
-                  Text(repo.fork.toString())
+                  Text(numberFormat(repo.fork.toDouble(), 0))
                 ],
               ),
             ],

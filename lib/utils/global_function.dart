@@ -56,3 +56,26 @@ String dateFormat(String isoDate) {
   final date = format.format(dateTime);
   return date;
 }
+
+String numberFormat(double num, int divCount) {
+  String trailing = getTrailing(divCount);
+
+  if (num < 1000) return num.toStringAsFixed(0) + trailing;
+
+  if (divCount == 2) return '>' + num.toStringAsFixed(0) + trailing;
+
+  return numberFormat(num / 1000, divCount + 1);
+}
+
+String getTrailing(int div) {
+  switch (div) {
+    case 0:
+      return '';
+    case 1:
+      return 'K';
+    case 2:
+      return 'M';
+    default:
+      return '...';
+  }
+}
