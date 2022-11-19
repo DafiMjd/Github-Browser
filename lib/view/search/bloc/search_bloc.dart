@@ -1,4 +1,3 @@
-import 'package:async/async.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:github_browser/data/model/index_navigation.dart';
@@ -7,6 +6,7 @@ import 'package:github_browser/data/model/repository_response.dart';
 import 'package:github_browser/data/model/user_response.dart';
 import 'package:github_browser/data/repo/github_repository.dart';
 import 'package:github_browser/data/search_type.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
@@ -17,7 +17,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   SearchBloc(this._postRepo)
       : super(SearchInitial(true, SearchType.user, true, const [], const [],
             false, '', IndexNavigation('', '', '', '', ''))) {
-    CancelableOperation? _myCancelableFuture;
     int page = 1;
     on<SearchTypeSearchBox>((event, emit) {
       emit(SearchTypingSearchBox(
@@ -46,8 +45,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
       add(SearchFetchItems(state.keyword));
     });
-
-
 
     on<SearchChangePagingOption>((event, emit) {
       emit(SearchPagingOptionChanged(
@@ -83,7 +80,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       }
     }
 
-    Future<dynamic> _getData(String keyword, SearchType type,) async {
+    Future<dynamic> _getData(
+      String keyword,
+      SearchType type,
+    ) async {
       try {
         var result = await _postRepo.fetchGithub(
             _getType(type), keyword, page.toString());
@@ -97,10 +97,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         }
         // rethrow;
       }
-    }
-
-    Future<void> _cancelFuture() async {
-      await _myCancelableFuture?.cancel();
     }
 
     on<SearchFetchItems>((event, emit) async {
@@ -211,9 +207,21 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           event.error));
     });
 
-    // on<SearchCancelFuture>((event, emit) async {
-    //   _cancelFuture();
-    //   emit(const SearchInitial(true, SearchType.user, true, [], [], false));
-    // });
+    on<SearchOpenUrl>((event, emit) async {
+      try {
+        await launchUrl(Uri.parse(event.url));
+      } catch (e) {
+        emit(SearchFetchFailed(
+            state.isSearchFieldEmpty,
+            state.type,
+            state.isLazyLoading,
+            state.lazyItems,
+            state.pagingItems,
+            state.hasReachedMax,
+            state.keyword,
+            state.nav,
+            'Could not open URL'));
+      }
+    });
   }
 }

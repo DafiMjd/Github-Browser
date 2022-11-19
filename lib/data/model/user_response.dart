@@ -1,18 +1,18 @@
 class UserResponse {
   final int id;
-  final String username, userUrl, imageUrl;
+  final String username, url, imageUrl;
 
   UserResponse(
       {required this.id,
       required this.username,
-      required this.userUrl,
+      required this.url,
       required this.imageUrl});
 
   factory UserResponse.fromJson(Map<String, dynamic> json) {
     return UserResponse(
         id: json['id'] ?? 0,
         username: json['login'] ?? '',
-        userUrl: json['url'] ?? '',
+        url: json['html_url'] ?? '',
         imageUrl: json['avatar_url'] ?? '');
   }
 }

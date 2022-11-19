@@ -55,3 +55,9 @@ class SearchFetchFail extends SearchEvent {
 
   const SearchFetchFail(this.error);
 }
+
+class SearchOpenUrl extends SearchEvent {
+  final String url;
+
+  const SearchOpenUrl(this.url);
+}

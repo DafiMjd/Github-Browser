@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:github_browser/style/theme_constant.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 double mQueryWidth(BuildContext context, {double size = 1}) {
   if (size > 1) size = 1;
@@ -79,3 +81,15 @@ String getTrailing(int div) {
       return '...';
   }
 }
+
+Widget loadingImage() {
+    return Shimmer.fromColors(
+      baseColor: SKELETON_COLOR,
+      highlightColor: SKELETON_HIGHLIGHT_COLOR,
+      child: Container(
+        width: 60,
+        height: 60,
+        color: SKELETON_HIGHLIGHT_COLOR,
+      ),
+    );
+  }

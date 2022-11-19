@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_browser/style/theme_constant.dart';
-import 'package:github_browser/style/theme_manager.dart';
 import 'package:github_browser/utils/global_function.dart';
 import 'package:github_browser/view/home/bloc/home_bloc.dart';
 import 'package:github_browser/view/search/search_page.dart';
@@ -64,7 +63,7 @@ class _HomePageState extends State<HomePage> {
                       child: SearchBox(
                         submit: (value) {
                           if (value.isNotEmpty)
-                            Navigator.push(
+                            Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => SearchPage(
@@ -108,17 +107,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SearchPage(
-                  firstKeyword: 'doraemon',
-                ),
-              ));
-        },
       ),
     );
   }

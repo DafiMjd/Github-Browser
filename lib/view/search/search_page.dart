@@ -342,85 +342,123 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  _openUrl(String url) {
+    context.read<SearchBloc>().add(SearchOpenUrl(url));
+  }
+
   _getItem(SearchType type, item) {
     switch (type) {
       case SearchType.user:
         return UserWidget(
           user: item,
+          tap: () {
+            context
+                .read<SearchBloc>()
+                .add(SearchOpenUrl(item.url));
+          },
         );
       case SearchType.issue:
-        return IssueWidget(issue: item);
+        return IssueWidget(
+          issue: item,
+          tap: () {
+            context
+                .read<SearchBloc>()
+                .add(SearchOpenUrl(item.url));
+          },
+        );
       case SearchType.repository:
-        return RepositoryWidget(repo: item);
+        return RepositoryWidget(
+          repo: item,
+          tap: () {
+            context
+                .read<SearchBloc>()
+                .add(SearchOpenUrl(item.url));
+          },
+        );
     }
   }
 }
 
 class RepositoryWidget extends StatelessWidget {
   final RepositoryResponse repo;
-  const RepositoryWidget({Key? key, required this.repo}) : super(key: key);
+  final VoidCallback tap;
+  const RepositoryWidget({Key? key, required this.repo, required this.tap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-          leading: Image.network(repo.imageUrl),
-          // leading: Icon(Icons.abc),
-          title: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(
-              repo.name,
-              style: Theme.of(context).textTheme.titleSmall,
-              maxLines: 2,
+    return InkWell(
+      onTap: tap,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            leading: Image.network(
+              repo.imageUrl,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return loadingImage();
+              },
+              // frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
+              //     _loadingImage(),
+              errorBuilder: (context, error, stackTrace) =>
+                  Image.asset('assets/images/no_image.png'),
             ),
-          ),
-          subtitle: Text(dateFormat(repo.createdAt)),
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.remove_red_eye,
-                    size: mQueryWidth(context, size: 0.04),
-                    color: WATCHER_ICON_COLOR,
-                  ),
-                  horizontalSpace(3),
-                  Text(numberFormat(repo.watcher.toDouble(), 0))
-                ],
+            // leading: Icon(Icons.abc),
+            title: Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                repo.name,
+                style: Theme.of(context).textTheme.titleSmall,
+                maxLines: 2,
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.star,
-                    size: mQueryWidth(context, size: 0.04),
-                    color: STAR_ICON_COLOR,
-                  ),
-                  horizontalSpace(3),
-                  Text(numberFormat(repo.star.toDouble(), 0))
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.fork_right,
-                    size: mQueryWidth(context, size: 0.04),
-                    color: ALL_STATE_COLOR,
-                  ),
-                  horizontalSpace(3),
-                  Text(numberFormat(repo.fork.toDouble(), 0))
-                ],
-              ),
-            ],
+            ),
+            subtitle: Text(dateFormat(repo.createdAt)),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.remove_red_eye,
+                      size: mQueryWidth(context, size: 0.04),
+                      color: WATCHER_ICON_COLOR,
+                    ),
+                    horizontalSpace(3),
+                    Text(numberFormat(repo.watcher.toDouble(), 0))
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.star,
+                      size: mQueryWidth(context, size: 0.04),
+                      color: STAR_ICON_COLOR,
+                    ),
+                    horizontalSpace(3),
+                    Text(numberFormat(repo.star.toDouble(), 0))
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.fork_right,
+                      size: mQueryWidth(context, size: 0.04),
+                      color: ALL_STATE_COLOR,
+                    ),
+                    horizontalSpace(3),
+                    Text(numberFormat(repo.fork.toDouble(), 0))
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -432,7 +470,9 @@ enum IssueState { open, closed, all }
 
 class IssueWidget extends StatelessWidget {
   final IssueResponse issue;
-  const IssueWidget({Key? key, required this.issue}) : super(key: key);
+  final VoidCallback tap;
+  const IssueWidget({Key? key, required this.issue, required this.tap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -464,36 +504,50 @@ class IssueWidget extends StatelessWidget {
 
     getState(issue.state);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-          leading: Image.network(issue.imageUrl),
-          // leading: Icon(Icons.abc),
-          title: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(
-              issue.title,
-              style: Theme.of(context).textTheme.titleSmall,
-              maxLines: 2,
+    return InkWell(
+      onTap: tap,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            leading: Image.network(
+              issue.imageUrl,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return loadingImage();
+              },
+              // frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
+              //     _loadingImage(),
+              errorBuilder: (context, error, stackTrace) =>
+                  Image.asset('assets/images/no_image.png'),
             ),
-          ),
-          subtitle: Text(dateFormat(issue.updatedAt)),
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                width: mQueryWidth(context, size: 0.03),
-                height: mQueryWidth(context, size: 0.03),
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            // leading: Icon(Icons.abc),
+            title: Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                issue.title,
+                style: Theme.of(context).textTheme.titleSmall,
+                maxLines: 2,
               ),
-              verticalSpace(5),
-              Text(
-                issueString,
-                textAlign: TextAlign.start,
-              )
-            ],
+            ),
+            subtitle: Text(dateFormat(issue.updatedAt)),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  width: mQueryWidth(context, size: 0.03),
+                  height: mQueryWidth(context, size: 0.03),
+                  decoration:
+                      BoxDecoration(color: color, shape: BoxShape.circle),
+                ),
+                verticalSpace(5),
+                Text(
+                  issueString,
+                  textAlign: TextAlign.start,
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -503,47 +557,40 @@ class IssueWidget extends StatelessWidget {
 
 class UserWidget extends StatelessWidget {
   final UserResponse user;
-  const UserWidget({Key? key, required this.user}) : super(key: key);
+  final VoidCallback tap;
+  const UserWidget({Key? key, required this.user, required this.tap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-          leading: Image.network(
-            user.imageUrl,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return _loadingImage();
-            },
-            // frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
-            //     _loadingImage(),
-            errorBuilder: (context, error, stackTrace) =>
-                Image.asset('assets/images/no_image.png'),
-          ),
-          // leading: Icon(Icons.abc),
-          title: Text(
-            user.username,
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge!
-                .copyWith(fontStyle: FontStyle.normal, fontSize: 30),
-            maxLines: 1,
+    return InkWell(
+      onTap: tap,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            leading: Image.network(
+              user.imageUrl,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return loadingImage();
+              },
+              // frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
+              //     _loadingImage(),
+              errorBuilder: (context, error, stackTrace) =>
+                  Image.asset('assets/images/no_image.png'),
+            ),
+            // leading: Icon(Icons.abc),
+            title: Text(
+              user.username,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge!
+                  .copyWith(fontStyle: FontStyle.normal, fontSize: 30),
+              maxLines: 1,
+            ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _loadingImage() {
-    return Shimmer.fromColors(
-      baseColor: SKELETON_COLOR,
-      highlightColor: SKELETON_HIGHLIGHT_COLOR,
-      child: Container(
-        width: 60,
-        height: 60,
-        color: SKELETON_HIGHLIGHT_COLOR,
       ),
     );
   }

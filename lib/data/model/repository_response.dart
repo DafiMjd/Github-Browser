@@ -1,6 +1,6 @@
 class RepositoryResponse {
   final int id;
-  final String name, fullname, createdAt, repoUrl, imageUrl;
+  final String name, fullname, createdAt, url, imageUrl;
   final int watcher, star, fork;
 
   RepositoryResponse({
@@ -8,7 +8,7 @@ class RepositoryResponse {
       required this.name,
       required this.fullname,
       required this.createdAt,
-      required this.repoUrl,
+      required this.url,
       required this.imageUrl,
       required this.watcher,
       required this.star,
@@ -20,7 +20,7 @@ class RepositoryResponse {
         name: json['name'] ?? '',
         fullname: json['full_name'] ?? '',
         createdAt: json['created_at'] ?? '',
-        repoUrl: json['html_url'] ?? '',
+        url: json['html_url'] ?? '',
         imageUrl: json['owner']['avatar_url'] ?? '',
         watcher: json['watchers_count'] ?? 0,
         star: json['stargazers_count'] ?? 0,
