@@ -342,10 +342,6 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  _openUrl(String url) {
-    context.read<SearchBloc>().add(SearchOpenUrl(url));
-  }
-
   _getItem(SearchType type, item) {
     switch (type) {
       case SearchType.user:
