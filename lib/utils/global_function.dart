@@ -35,6 +35,7 @@ List<int> getPagination(current, max) {
     if (i == 1 || i == max || i >= left && i < right) {
       range.add(i);
       // test commit to count LOC
+      // another test
     }
   }
 
